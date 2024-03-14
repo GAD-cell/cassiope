@@ -1,0 +1,47 @@
+\section{Dataset Statistics}
+
+Statistics of the datasets used in our experiments are listed in \cref{tab:statistics_vertex_classification} and \cref{tab:statistics_graph_classification}.
+
+\begin{table}[ht]
+\centering
+\caption{Statistics of datasets used for vertex classification.}
+\label{tab:statistics_vertex_classification}
+\resizebox{0.45\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+ & \# Vertices & \# Edges & \# Features & \# Classes \\
+ \midrule
+\cora{} & 2708 & 5278 & 1433 & 7 \\
+\citeseer{} & 3327 & 4552 & 3703 & 6 \\
+\pubmed{} & 19717 & 44324 & 500 & 5 \\
+\amazoncomputers{} & 13752 & 245861 & 767 & 10 \\
+\amazonphoto{} & 7650 & 119081 & 745 & 8 \\
+\chameleon{} & 2277 & 31371 & 2325 & 5 \\
+\squirrel{} & 5201 & 198353 & 2089 & 5 \\
+\texas{} & 183 & 279 & 1703 & 5 \\
+\cornell{} & 183 & 277 & 1703 & 5 \\
+\wisconsin{} & 251 & 466 & 1703 & 5 \\
+ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+
+\begin{table}[ht]
+    \centering
+    \caption{Statistics of datasets used for graph classification.}
+    \label{tab:statistics_graph_classification}
+    \resizebox{0.5\textwidth}{!}{
+    \begin{tabular}{lccccc}
+        \toprule
+         &\shortstack{\# Graphs }  & \shortstack{\# Classes } & \shortstack{Avg. \# \\ vertices} & \shortstack{Avg. \# \\ edges}& \shortstack{\# Features } \\
+         \midrule
+         \dd{} & 1178 & 2 & 284.32 & 715.66 & 89 \\
+         \enzymes{} & 600 & 6 & 32.63 & 64.14 & 3 \\
+         \nci{} &  4110 & 2 & 29.78 & 32.30 & 37 \\
+         \proteins{} & 1113 & 2 & 39.06 & 72.82 & 3 \\
+         \imdbb{}{} & 1000 & 2 & 19.77 & 96.53 & - \\
+         \bottomrule
+    \end{tabular}
+    }
+\end{table}

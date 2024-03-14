@@ -18,3 +18,4 @@ Les étapes du projet seront les suivantes:
 - Analyse de données sur les papiers existants. Nous consulterons une base de données de papiers déjà écrits pour en extraire des règles communes aux articles les plus populaires. Ces règles seront ensuite ajoutées au système final.
 - Implémentation du système de vérification. Etant donné un article, nous voulons pouvoir écrire la liste de améliorations et corrections possible.
 - Création d’une interface. Un utilisateur devra pouvoir interagir avec notre outil à travers une interface Web.
+
