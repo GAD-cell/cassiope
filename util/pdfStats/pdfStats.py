@@ -10,8 +10,15 @@ For now, it prints the following statistics:
 - Number of pages
 - Number of words
 - Number of paragraphs
+- Number of sections
+- Number of subsections
+- Number of subsubsections
 - Font
 - Number of citations
+- Number of figures
+- Number of tables
+- Number of equations
+- Number of references
 
 """
 
@@ -49,16 +56,24 @@ def parse_latex(latex_dir):
 
     # Find the main text file
     main_tex = None
-    for root, dirs, files in os.walk(latex_dir):
-        for file in files:
-            if file.endswith(".tex"):
-                with open(os.path.join(root, file), "r") as f:
-                    if "documentclass" in f.read():
-                        main_tex = os.path.join(root, file)
-                        break
-        if main_tex:
-            print(f"Main tex file found: {main_tex}")
-            break
+
+    ## Check if main.tex exists
+    if os.path.exists(os.path.join(latex_dir, "main.tex")):
+        main_tex = os.path.join(latex_dir, "main.tex")
+        print(f"Main tex file found directly: {main_tex}")
+
+    ## If not, search for the main tex file
+    if not main_tex:
+        for root, dirs, files in os.walk(latex_dir):
+            for file in files:
+                if file.endswith(".tex"):
+                    with open(os.path.join(root, file), "r") as f:
+                        if "documentclass" in f.read():
+                            main_tex = os.path.join(root, file)
+                            break
+            if main_tex:
+                print(f"Main tex file found: {main_tex}")
+                break
 
     if not main_tex:
         raise ValueError("No main tex file found.")
@@ -83,14 +98,20 @@ def parse_latex(latex_dir):
     latex = re.sub(r"%.*", "", latex)
 
     # Remove excess line breaks
-    latex = re.sub(r"\n\n+", "\n", latex)
+    latex = re.sub(r"\n+", "\n", latex)
 
     return latex
 
 
 latex = parse_latex(args.latex)
 
-print(latex)
+
+# Util : get the number of occurences of regex matches in a string, among an array of regexes
+def get_number_occurences(string, regexes):
+    count = 0
+    for regex in regexes:
+        count += len(re.findall(regex, string))
+    return count
 
 
 def get_number_pages(doc):
@@ -109,21 +130,81 @@ def get_font(doc):
     for page in doc:
         fonts += page.get_fonts()
 
-    return Counter(fonts).most_common(1)[0][0][3]
+    # Get the most common font
+    most_common_font = Counter(fonts).most_common(1)[0][0][3]
+
+    # Font string format is like AECCXO+NimbusRomNo9L-Regu
+    # We want to extract the font family
+    return most_common_font.split("+")[1].split("-")[0]
 
 
 def get_citations(doc):
-    citations = 0
-    for page in doc:
-        citations += len(re.findall(r"\[\d+\]", page.get_text("text")))
-    return citations
+    return get_number_occurences(
+        latex,
+        [
+            r"\\cite",
+            r"\\citep",
+            r"\\citet",
+            r"\\citeauthor",
+            r"\\citeyear",
+            r"\\citealp",
+            r"\\citealt",
+            r"\\citep\*",
+            r"\\citeauthor\*",
+            r"\\citeyear\*",
+            r"\\citealp\*",
+            r"\\citealt\*",
+        ],
+    )
+
+
+def get_figures(doc):
+    return get_number_occurences(
+        latex, [r"\\begin{figure", r"\\begin{figure*", r"\\includegraphics"]
+    )
+
+
+def get_tables(doc):
+    return get_number_occurences(latex, [r"\\begin{table", r"\\begin{table*"])
+
+
+def get_paragraphs(doc):
+    return get_number_occurences(latex, [r"\\paragraph", r"\\subparagraph"])
+
+
+def get_equations(doc):
+    return get_number_occurences(latex, [r"\\begin{equation", r"\\begin{equation*"])
+
+
+def get_references(doc):
+    return get_number_occurences(latex, [r"\\bibitem"])
+
+
+def get_sections(doc):
+    return get_number_occurences(latex, [r"\\section"])
+
+
+def get_subsections(doc):
+    return get_number_occurences(latex, [r"\\subsection"])
+
+
+def get_subsubsections(doc):
+    return get_number_occurences(latex, [r"\\subsubsection"])
 
 
 STATS = {
-    "pages": get_number_pages(doc),
-    "words": get_number_words(doc),
-    "font": get_font(doc),
     "citations": get_citations(doc),
+    "equations": get_equations(doc),
+    "figures": get_figures(doc),
+    "font": get_font(doc),
+    "pages": get_number_pages(doc),
+    "paragraphs": get_paragraphs(doc),
+    "references": get_references(doc),
+    "tables": get_tables(doc),
+    "words": get_number_words(doc),
+    "sections": get_sections(doc),
+    "subsections": get_subsections(doc),
+    "subsubsections": get_subsubsections(doc),
 }
 
 print(json.dumps(STATS, indent=4))
