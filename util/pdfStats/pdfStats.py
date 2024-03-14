@@ -88,8 +88,10 @@ def parse_latex(latex_dir):
 
     print(f"Included tex files: {included_tex_files}")
 
-    # Replace all the references with the actual text
-    latex = main_tex
+    # Read the main tex file and all the included tex files
+    with open(main_tex, "r") as f:
+        latex = f.read()
+
     for tex_file in included_tex_files:
         with open(os.path.join(latex_dir, tex_file), "r") as f:
             latex += f.read()
@@ -173,7 +175,28 @@ def get_paragraphs(doc):
 
 
 def get_equations(doc):
-    return get_number_occurences(latex, [r"\\begin{equation", r"\\begin{equation*"])
+    return get_number_occurences(
+        latex,
+        [
+            r"\\begin{equation",
+            r"\\begin{equation*",
+            r"\\begin{eqnarray",
+            r"\\begin{eqnarray*",
+            r"\\begin{align",
+            r"\\begin{align*",
+            r"\\begin{alignat",
+            r"\\begin{alignat*",
+            r"\\begin{gather",
+            r"\\begin{gather*",
+            r"\\begin{flalign",
+            r"\\begin{flalign*",
+            r"\\begin{multline",
+            r"\\begin{multline*",
+            r"\\begin{split",
+            r"\\begin{split*",
+            r"\\\[",
+        ],
+    )
 
 
 def get_references(doc):
