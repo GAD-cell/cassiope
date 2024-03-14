@@ -1,0 +1,9 @@
+\section{Conclusion}
+
+
+Inspired by the 1-WL test, we propose a new graph colouring scheme, called \emph{local vertex colouring} (LVC). LVC iteratively refines the colours of vertices based on a graph search algorithm. LVC surpasses the expressivity limitations of 1-WL. We also prove that combining LVC with breath-first and depth-first searches can solve graph problems that cannot be solved with 1-WL test. 
+
+% Specifically, breadth-first-search-guided LVC (BFC) can distinguish ego shortest-path graphs. Depth-first-search-guided LVC (DFC) can solve biconnectivity and cycle detection. Moreover, we prove that the expressivity of BFC grows hierarchically with the search radius $\delta$, which can be used as an alternative way to measure the expressivity of GNNs.
+Based on LVC, we propose a novel variant of graph neural network, named search-guided graph neural network (SGN). SGN is permutation invariant and
+inherits the properties from LVC by adopting its colouring scheme to learn the embeddings of vertices. 
+Through the experiments on a vertex classification task, we show that SGN can generalize to both homophilic and heterophilic graphs. The result of the graph classification task further verifies the efficiency of the proposed model.

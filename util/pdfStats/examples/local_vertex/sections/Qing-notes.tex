@@ -1,0 +1,40 @@
+\clearpage
+\section{Notes from Qing}
+
+Let $G=(V,E)$ be an undirected graph and $S(v)$ be a search on the nodes in the  neighbourhood $N_{\delta}(v)$ on $G$, starting from a vertex $v\in V$. We denote the set of tree edges in the search by $S_{dfs}(v)$ as $tree(E)$, the set of back edges as $back(E)$, and the set of cross edges as $cross(E)$ (definitions come later). A \emph{beeline path} $(w_0,w_1,\dots,w_k)$ in $N_{\delta}(v)$ is defined as a path satisfying: $w_0=v$, $hop(w_{i-1})+1=hop(w_{i})$ and $w_i\in N_{\delta}(v)$ for $i=1,\dots, k$.
+
+For each $v\in V$, we associate it with a hop-aware neighborhood subgraph, defined as $G_v=(V_v, E_v, \pi)$ where $V_v=N_{\delta}(v)\cup \{v\}$, $E_v=\{(u,u')\in E|u,u'\in N_{\delta}(v)\}$, and $\pi: V\times V\rightarrow\mathbb{N}$ assigns a hop number to each node in this subgraph such that $\pi(v,u)=d_{vu}$ and we consider $d_{vv}=0$.
+
+\begin{itemize}
+\item \emph{Breadth-first Coloring} (BFC): \\ Starting from a source vertex $v$, BFC traverses on its hop-aware neighbourhood subgraph $G_v$ in a breadth-first searching manner and colours each node along the traversal. More specifically,  BFC colours the nodes in the neighbourhood $N_{\delta}(v)$ of a source vertex $v$ at increasing distances from the immediate neighbors of $v$ to the farthest neighbors of $v$, as defined below:
+
+\begin{equation}
+\label{eqn:bfs_lvc_forward}
+    \lambda^{l+1}_v(w):= \phi\Bigl(\lambda^{l}_v(w), \psi\bigl(\lambda^{l}_{tree}(w), \lambda_{back}^{l}(w), \lambda_{cross}^{l}\bigr)\Bigr)
+\end{equation}
+
+($\lambda_{tree}$, $\lambda_{back}$, and $\lambda_{cross}$ need to be defined later)
+
+For BFC, the following property holds.
+\begin{lemma}
+ For any beeline path $(w_0,w_1,\dots,w_k)$ in $N_{\delta}(v)$, $w_{i-1}$ is colored \emph{before} $w_i$ for $i=1,\dots, k$.   
+\end{lemma}
+
+
+
+\item  \emph{Depth-first Coloring} (DFC): \\
+Starting from a source vertex $v$, DFC traverses on its hop-aware neighborhood subgraph $G_v$ in a depth-first searching manner and colors each node when it traverses reversely back from the node. More specifically, DFC traverses as depth as possible and colors a node when the node has all child nodes at a deeper level visited (the definition of the traversal needs to be formalised later). When coloring a node, the same method as BFC can be defined:
+
+\begin{equation}
+\label{eqn:bfs_lvc_forward}
+    \lambda^{l+1}_v(w):= \phi\Bigl(\lambda^{l}_v(w), \psi\bigl(\lambda^{l}_{tree}(w), \lambda_{back}^{l}(w), \lambda_{cross}^{l}\bigr)\Bigr)
+\end{equation}
+
+For DFC, the following property can hold.
+\begin{lemma}
+For any beeline path $(w_0,w_1,\dots,w_k)$ in $N_{\delta}(v)$, $w_{i-1}$ is colored \emph{after} $w_i$ for $i=1,\dots, k$.
+\end{lemma}
+
+For DFC, we can show that it can be applied for cycle detection and finding articulation points.
+
+\end{itemize}

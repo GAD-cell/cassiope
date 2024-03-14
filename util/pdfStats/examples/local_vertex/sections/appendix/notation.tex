@@ -1,0 +1,52 @@
+\section{Summary of Notations}
+We summarise the notations used throughout the paper in \autoref{tbl:notation} below.
+\begin{table}[h!]
+\caption{\label{tbl:notation}Summary of notations.}
+\label{sample-table}
+\vskip 0.15in
+ \renewcommand*{\arraystretch}{1.2}
+\begin{center}
+\begin{small}
+\begin{tabular}{ll}
+\toprule
+Symbol & Description\\
+\midrule
+$\{\cdot\}$    & a set \\
+$\{\!\!\{\cdot\}\!\!\}$    & a multiset \\
+$|\cdot|$    & cardinality of a set/multiset/sequence \\
+$\mathbb{P}(\cdot)$    & a power set \\
+$G$, $H$ & undirected graphs\\
+$V$    & a vertex set \\
+$E$    & an edge set\\
+% $e_{vu}$     & undirected edge connected vertex $v$ and $u$\\
+% $\{v,u\}$     & vertex set of a undirected edge\\
+$\vec{e}_{vu}$     & directed edge from vertex $v$ to $u$\\
+$(v,u)$     & a vertex sequence of a directed edge\\
+$d(v,u)$     & shortest distance between vertex $v$ and $u$\\
+$N_{\delta}(v)$     & a set of vertices within $\delta$ hops of vertex $v$ \\
+$\mathcal{P}_{vu}$     & a path from vertex $v$ to $u$ \\
+$(w_0,w_1,...,w_k)$     & a vertex sequence in a path\\
+$T_v$     & a search tree rooted at vertex $v$\\
+$v \prec u$ &  $v$ precedes $u$ in search visiting order \\
+$v \succ u$ &  $v$ succeeds $u$ in search visiting order \\
+$E_{\text{back}}^{T_v}$ & a back edge set of the search tree $T_v$ rooted at vertex $v$\\
+$E_{\text{tree}}^{T_v}$ & a tree edge set of the search tree $T_v$ rooted at vertex $v$\\
+$G\simeq H$ &  $G$ and $H$ are isomorphic \\
+$C$ &  a set of colours\\
+$\lambda: V \rightarrow C$ & a colour refinement function that assigns a colour in $C$ to a vertex in $V$\\
+$\lambda_v: V \rightarrow C$ & a colour refinement function that assigns a colour in $C$ to a vertex in $V$, based on a graph search rooted at vertex $v$\\
+$\eta(u, E_{\text{tree}}^{T_v}, E_{\text{back}}^{T_v})$ & a function which takes a vertex $u$, a tree edge set $E_{\text{tree}}^{T_v}$ and a back edge set $E_{\text{back}}^{T_v}$ as input, outputs a vertex set \\
+$\vee$ & logical or \\
+$\wedge$ & logical and \\
+$\parallel$ & concatenation \\
+$\phi(\cdot)$, $\psi(\cdot)$, $\rho(\cdot)$ &  injective functions \\
+$h_v$ &  vector representation of vertex $v$\\
+$MLP$ &  multilayer perceptron\\
+$\epsilon$ &  a learnable parameter \\
+$W_{c}$ &  a learnable matrix with respect to the shortest path distance $c$ between two vertices \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\vskip -0.1in
+\end{table}

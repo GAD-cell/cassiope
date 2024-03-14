@@ -1,0 +1,179 @@
+\documentclass[nohyperref]{article}
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+% \usepackage{subfigure}
+\usepackage{booktabs} % for professional tables
+
+% hyperref makes hyperlinks in the resulting PDF.
+% If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% please comment out the following usepackage line and replace
+% \usepackage{icml2023} with \usepackage[nohyperref]{icml2023} above.
+\usepackage[pagebackref=true]{hyperref}
+
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Use the following line for the initial blind version submitted for review:
+%\usepackage{icml2023}
+
+
+% If accepted, instead use the following line for the camera-ready submission:
+\usepackage[accepted]{icml2023}
+
+% For theorems and such
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{bbold}
+\usepackage[normalem]{ulem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{centernot}
+\usepackage{soul}
+\usepackage{multirow}
+\usepackage{comment}
+
+
+% if you use cleveref..
+\usepackage[capitalize,noabbrev]{cleveref}
+
+% symbols
+\usepackage{amsfonts}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \theoremstyle{plain}
+% \newtheorem{theorem}{Theorem}[section]
+% \newtheorem{proposition}[theorem]{Proposition}
+% \newtheorem{lemma}[theorem]{Lemma}
+% \newtheorem{corollary}[theorem]{Corollary}
+% \theoremstyle{definition}
+% \newtheorem{definition}[theorem]{Definition}
+% \newtheorem{assumption}[theorem]{Assumption}
+% \theoremstyle{remark}
+% \newtheorem{remark}[theorem]{Remark}
+
+% Todonotes is useful during development; simply uncomment the next line
+%    and comment out the line below the next line to turn off comments
+%\usepackage[disable,textsize=tiny]{todonotes}
+\usepackage[textsize=tiny]{todonotes}
+
+% \usepackage{algorithm}
+% \usepackage{algpseudocode}
+\usepackage{thm-restate}
+\usepackage{xcolor}
+
+
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{cleveref}
+
+\usepackage{natbib}
+
+\definecolor{RoyalBlue}{rgb}{0,0,0.8}
+\hypersetup{colorlinks, citecolor=RoyalBlue, linkcolor=RoyalBlue}
+
+
+\newcommand{\q}[1]{\textcolor{red}{#1}}
+\newcommand{\s}[1]{\textcolor{orange}{#1}}
+\newcommand{\dw}[1]{\textcolor{magenta}{#1}}
+
+\newcommand{\sd}[1]{{{\footnotesize±}{\scriptsize#1}}}
+
+\newcommand{\hash}{\operatorname{hash}}
+
+\declaretheorem[name=Theorem,numberwithin=section]{thm}
+\declaretheorem[name=Lemma,numberwithin=section]{lemma}
+\declaretheorem[name=Proposition,numberwithin=section]{prop}
+\declaretheorem[name=Corollary,numberwithin=section]{corollary}
+\declaretheorem[name=Definition,numberwithin=section]{definition}
+
+\icmltitlerunning{Local Vertex Colouring Graph Neural Networks}
+
+
+\newcommand*{\model}{SGN}
+\newcommand*{\citeseer}{{\sc CiteSeer}}
+\newcommand*{\cora}{{\sc Cora}}
+\newcommand*{\pubmed}{{\sc Pubmed}}
+\newcommand*{\cornell}{{\sc Cornell}}
+\newcommand*{\texas}{{\sc Texas}}
+\newcommand*{\wisconsin}{{\sc Wisconsin}}
+\newcommand*{\chameleon}{{\sc Chameleon}}
+\newcommand*{\squirrel}{{\sc Squirrel}}
+\newcommand*{\amazonphoto}{{\sc Photo}}
+\newcommand*{\amazoncomputers}{{\sc Computers}}
+\newcommand*{\dd}{{\sc D\&D}}
+\newcommand*{\nci}{{\sc NCI1}}
+\newcommand*{\proteins}{{\sc PROTEINS}}
+\newcommand*{\enzymes}{{\sc ENZYMES}}
+\newcommand*{\imdbb}{{\sc IMDB-BINARY}}
+\newcommand*{\baseline}{{\sc Baseline}}
+
+\begin{document}
+
+\twocolumn[
+\icmltitle{Local Vertex Colouring Graph Neural Networks}
+\icmlsetsymbol{equal}{*}
+
+
+\begin{icmlauthorlist}
+\icmlauthor{Shouheng Li}{anu,csiro}
+\icmlauthor{Dongwoo Kim}{postech}
+\icmlauthor{Qing Wang}{anu}
+% \icmlauthor{Firstname8 Lastname8}{sch}
+% \icmlauthor{Firstname8 Lastname8}{yyy,comp}
+% %\icmlauthor{}{sch}
+%\icmlauthor{}{sch}
+\end{icmlauthorlist}
+
+\icmlaffiliation{anu}{School of Computing, Australian National University, Canberra, Australia}
+\icmlaffiliation{postech}{CSE \& GSAI, POSTECH, Pohang, South Korea}
+\icmlaffiliation{csiro}{Data61, CSIRO, Canberra, Australia}
+
+\icmlcorrespondingauthor{Dongwoo Kim}{dongwoo.kim@postech.ac.kr}
+\icmlcorrespondingauthor{Qing Wang}{qing.wang@anu.edu.au}
+
+% You may provide any keywords that you
+% find helpful for describing your paper; these are used to populate
+% the "keywords" metadata in the PDF but will not be shown in the document
+\icmlkeywords{Machine Learning, ICML}
+
+\vskip 0.3in
+]
+
+\printAffiliationsAndNotice{}
+
+\input{sections/abstract.tex}
+\input{sections/intro.tex}
+\input{sections/related_work.tex}
+\input{sections/preliminary.tex}
+\input{sections/method.tex}
+\input{sections/model.tex}
+\input{sections/experiment.tex}
+\input{sections/conclusion.tex}
+%\clearpage
+%\input{sections/Qing-notes.tex}
+
+
+\subsection*{Acknowledgements}
+We thank Professor Brendan Mckay for helpful suggestions. We acknowledge the support of the Australian Research Council under Discovery Project DP210102273. This work was also partly supported by Institute of Information \& communications Technology Planning \& Evaluation (IITP) grant funded by the Korea government (MSIT) (No.2019-0-01906, Artificial Intelligence Graduate School Program(POSTECH)) and National Research Foundation of Korea (NRF) grant funded by the Korea government (MSIT) (NRF-2021R1C1C1011375).
+
+\bibliography{references}
+\bibliographystyle{icml2023}
+
+
+%\section{Neural Models}
+\newpage
+\appendix
+\onecolumn
+\input{sections/appendix}
+
+\end{document}
