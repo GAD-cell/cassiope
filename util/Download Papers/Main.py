@@ -8,12 +8,9 @@ Created on Sat Mar 16 21:19:31 2024
 import os
 import json
 import gzip
-import shutil
 import requests
 from tqdm import tqdm
-import tempfile
-import csv
-import tarfile
+import re
 
 
 def getLinks():
@@ -64,6 +61,7 @@ def getLinks():
 
 def telecharger_et_traiter_subsets(liens):
     
+    
     # Dossier de destination pour sauvegarder les fichiers téléchargés
     dossier_destination = "datasets"
 
@@ -91,7 +89,6 @@ def telecharger_et_traiter_subset(lien, dossier_destination, index):
         filtered_database = traiter_subset(chemin_fichier)
     else:
         print("Erreur : Le fichier téléchargé est corrompu.")
-    return filtered_database
 
 def telecharger_fichier(lien, chemin_destination):
     # Téléchargement du fichier avec tqdm pour afficher la progression
@@ -145,42 +142,71 @@ def est_valide(ligne_json):
     return ligne_json.get('venue', '') == "International Conference on Machine Learning" \
                and str(ligne_json.get('year', '')) == "2022" 
 
-def download_paper(paper_data, pdf_dir, tex_dir):
-    arxiv_id = paper_data["externalids"]["ArXiv"]
-    if arxiv_id:
-        # Téléchargement du PDF
-        pdf_url = f"https://arxiv.org/pdf/{arxiv_id}.pdf"
-        pdf_path = os.path.join(pdf_dir, f"{arxiv_id}.pdf")
-        download_file(pdf_url, pdf_path)
 
-        # Téléchargement du Tex
-        tex_url = f"https://arxiv.org/e-print/{arxiv_id}"
-        tex_path = os.path.join(tex_dir, f"{arxiv_id}.tex")
-        download_file(tex_url, tex_path)
+def clean_filename(filename):
+    # Supprimer les caractères non valides pour un nom de fichier sur Windows
+    return re.sub(r'[\\/:"*?<>|]', '', filename)
 
-def download_file(url, file_path):
-    response = requests.get(url)
-    if response.status_code == 200:
-        with open(file_path, 'wb') as file:
-            file.write(response.content)
-            print(f"Downloaded: {file_path}")
-    else:
-        print(f"Failed to download: {url}")
-
-def download_papers_from_json(json_file):
-    pdf_dir = "PDF"
-    tex_dir = "LaTeX"
-
-    os.makedirs(pdf_dir, exist_ok=True)
-    os.makedirs(tex_dir, exist_ok=True)
-
-    with open(json_file, 'r') as file:
-        papers = json.load(file)
-        count = 0
-        for paper_data in papers:
-            count+=1
-            print("Téléchargement du papier numéro " + str(count))
-            download_paper(paper_data, pdf_dir, tex_dir)
+def download_papers_from_json(json_file_path):
+    # Ouverture du fichier JSON
+    with open(json_file_path, 'r') as file:
+        lines = file.readlines()
+        
+        # Compteur de papiers téléchargés
+        total_papers = len(lines)
+        downloaded_papers = 0
+        
+        # Itération sur chaque ligne du fichier JSON
+        for index, line in enumerate(lines, start=1):
+            try:
+                paper_data = json.loads(line)
+                arxiv_id = paper_data['externalids']['ArXiv']
+                paper_title = paper_data['title']
+                
+                if arxiv_id:
+                    # Construction des liens de téléchargement
+                    pdf_url = f"https://arxiv.org/pdf/{arxiv_id}.pdf"
+                    latex_url = f"https://arxiv.org/e-print/{arxiv_id}"
+                    
+                    # Création des dossiers s'ils n'existent pas
+                    pdf_folder_path = "PDF"
+                    latex_folder_path = "LaTeX"
+                    os.makedirs(pdf_folder_path, exist_ok=True)
+                    os.makedirs(latex_folder_path, exist_ok=True)
+                    
+                    # Téléchargement du PDF
+                    pdf_response = requests.get(pdf_url)
+                    if pdf_response.status_code == 200:
+                        # Nettoyage du nom de fichier
+                        cleaned_title = clean_filename(paper_title)
+                        pdf_file_path = os.path.join(pdf_folder_path, f"{cleaned_title}.pdf")
+                        with open(pdf_file_path, 'wb') as pdf_file:
+                            pdf_file.write(pdf_response.content)
+                        print(f"Téléchargement réussi : {paper_title} (PDF)")
+                        downloaded_papers += 1
+                    else:
+                        print(f"Échec du téléchargement : {paper_title} (PDF)")
+                    
+                    # Téléchargement du LaTeX
+                    latex_response = requests.get(latex_url)
+                    if latex_response.status_code == 200:
+                        # Nettoyage du nom de fichier
+                        cleaned_title = clean_filename(paper_title)
+                        latex_file_path = os.path.join(latex_folder_path, f"{cleaned_title}.tex")
+                        with open(latex_file_path, 'wb') as latex_file:
+                            latex_file.write(latex_response.content)
+                        print(f"Téléchargement réussi : {paper_title} (LaTeX)")
+                    else:
+                        print(f"Échec du téléchargement : {paper_title} (LaTeX)")
+                else:
+                    print(f"Pas de lien ArXiv disponible pour : {paper_title}")
+                    total_papers -= 1  # Décrémenter le nombre total de papiers à télécharger
+            except json.JSONDecodeError:
+                print(f"Erreur de décodage JSON sur la ligne {index}: {line}")
+    
+    # Affichage du nombre total de papiers téléchargés
+    print(f"Nombre total de papiers téléchargés : {downloaded_papers} sur {total_papers}")
+  
 
 def format_json_file(input_file):
     output_file = "formatted_output.json"
@@ -202,12 +228,13 @@ def format_json_file(input_file):
     return output_file
 
 def main():
-    links = getLinks()
+    # Télecharger les liens de la last_release
+    #links = getLinks()
     # J'ai déja filtrer toute la base de données et j'ai gardé tout les icml 2022 dans database_filtered, pas besoin de générer un nouveau fichier json
     #filtered_database = format_json_file(telecharger_et_traiter_subsets(links))
     #database_filtered = 'database_filtered.json'
     #Il faut formater le fichier json obtenu pour pouvoir le parcourir
-    formatted_database = 'formatted_output.json'
+    formatted_database = 'database_filtered.json'
     #La fonction en dessous créer deux dossiers : "PDF" et "LaTeX", qui vont contenir après téléchargement tout les papiers du .json et qui sont bien référencés sur ArXiv
     download_papers_from_json(formatted_database)
     return
