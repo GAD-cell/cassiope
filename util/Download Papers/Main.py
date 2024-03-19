@@ -234,7 +234,7 @@ def main():
     #filtered_database = format_json_file(telecharger_et_traiter_subsets(links))
     #database_filtered = 'database_filtered.json'
     #Il faut formater le fichier json obtenu pour pouvoir le parcourir
-    formatted_database = 'database_filtered.json'
+    formatted_database = 'formatted_output.json'
     #La fonction en dessous créer deux dossiers : "PDF" et "LaTeX", qui vont contenir après téléchargement tout les papiers du .json et qui sont bien référencés sur ArXiv
     download_papers_from_json(formatted_database)
     return
