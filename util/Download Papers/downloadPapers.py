@@ -219,7 +219,7 @@ def download_papers_from_json(json_file_path):
                         # Nettoyage du nom de fichier
                         cleaned_title = clean_filename(paper_title)
                         latex_file_path = os.path.join(
-                            latex_folder_path, f"{cleaned_title}.zip"
+                            latex_folder_path, f"{cleaned_title}.tar.gz"
                         )
                         with open(latex_file_path, "wb") as latex_file:
                             latex_file.write(latex_response.content)
