@@ -37,13 +37,6 @@ parser = argparse.ArgumentParser(description="Infer statistics about a pdf.")
 parser.add_argument("pdf", help="Path to the pdf file.")
 parser.add_argument("latex", help="Path to the latex project directory.")
 
-# Parse the arguments
-args = parser.parse_args()
-pdf_path = args.pdf
-
-# Open the pdf
-doc = fitz.open(pdf_path)
-
 
 def parse_latex(latex_dir):
     """
@@ -60,7 +53,7 @@ def parse_latex(latex_dir):
     ## Check if main.tex exists
     if os.path.exists(os.path.join(latex_dir, "main.tex")):
         main_tex = os.path.join(latex_dir, "main.tex")
-        print(f"Main tex file found directly: {main_tex}")
+        # print(f"Main tex file found directly: {main_tex}")
 
     ## If not, search for the main tex file
     if not main_tex:
@@ -72,7 +65,7 @@ def parse_latex(latex_dir):
                             main_tex = os.path.join(root, file)
                             break
             if main_tex:
-                print(f"Main tex file found: {main_tex}")
+                # print(f"Main tex file found: {main_tex}")
                 break
 
     if not main_tex:
@@ -86,7 +79,7 @@ def parse_latex(latex_dir):
                 if ".tex" in line:
                     included_tex_files.append(line.split("{")[1].split("}")[0])
 
-    print(f"Included tex files: {included_tex_files}")
+    # print(f"Included tex files: {included_tex_files}")
 
     # Read the main tex file and all the included tex files
     with open(main_tex, "r") as f:
@@ -103,9 +96,6 @@ def parse_latex(latex_dir):
     latex = re.sub(r"\n+", "\n", latex)
 
     return latex
-
-
-latex = parse_latex(args.latex)
 
 
 # Util : get the number of occurences of regex matches in a string, among an array of regexes
@@ -140,7 +130,7 @@ def get_font(doc):
     return most_common_font.split("+")[1].split("-")[0]
 
 
-def get_citations(doc):
+def get_citations(latex):
     return get_number_occurences(
         latex,
         [
@@ -161,21 +151,21 @@ def get_citations(doc):
     )
 
 
-def get_figures(doc):
+def get_figures(latex):
     return get_number_occurences(
         latex, [r"\\begin{figure", r"\\begin{figure*", r"\\includegraphics"]
     )
 
 
-def get_tables(doc):
+def get_tables(latex):
     return get_number_occurences(latex, [r"\\begin{table", r"\\begin{table*"])
 
 
-def get_paragraphs(doc):
+def get_paragraphs(latex):
     return get_number_occurences(latex, [r"\\paragraph", r"\\subparagraph"])
 
 
-def get_equations(doc):
+def get_equations(latex):
     return get_number_occurences(
         latex,
         [
@@ -200,35 +190,50 @@ def get_equations(doc):
     )
 
 
-def get_references(doc):
+def get_references(latex):
     return get_number_occurences(latex, [r"\\bibitem"])
 
 
-def get_sections(doc):
+def get_sections(latex):
     return get_number_occurences(latex, [r"\\section"])
 
 
-def get_subsections(doc):
+def get_subsections(latex):
     return get_number_occurences(latex, [r"\\subsection"])
 
 
-def get_subsubsections(doc):
+def get_subsubsections(latex):
     return get_number_occurences(latex, [r"\\subsubsection"])
 
 
-STATS = {
-    "citations": get_citations(doc),
-    "equations": get_equations(doc),
-    "figures": get_figures(doc),
-    "font": get_font(doc),
-    "pages": get_number_pages(doc),
-    "paragraphs": get_paragraphs(doc),
-    "references": get_references(doc),
-    "tables": get_tables(doc),
-    "words": get_number_words(doc),
-    "sections": get_sections(doc),
-    "subsections": get_subsections(doc),
-    "subsubsections": get_subsubsections(doc),
-}
+def paperStats(pdf_path, latex_dir):
 
-print(json.dumps(STATS, indent=4))
+    pdf = fitz.open(pdf_path)
+    latex = parse_latex(latex_dir)
+
+    STATS = {
+        "citations": get_citations(latex),
+        "equations": get_equations(latex),
+        "figures": get_figures(latex),
+        "font": get_font(pdf),
+        "pages": get_number_pages(pdf),
+        "paragraphs": get_paragraphs(latex),
+        "references": get_references(latex),
+        "tables": get_tables(latex),
+        "words": get_number_words(pdf),
+        "sections": get_sections(latex),
+        "subsections": get_subsections(latex),
+        "subsubsections": get_subsubsections(latex),
+    }
+
+    return STATS
+
+
+if __name__ == "__main__":
+
+    # Parse the arguments
+    args = parser.parse_args()
+    pdf_path = args.pdf
+
+    STATS = paperStats(pdf_path, args.latex)
+    print(json.dumps(STATS, indent=4))
