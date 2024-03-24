@@ -156,6 +156,7 @@ def get_citations(doc):
             r"\\citeyear\*",
             r"\\citealp\*",
             r"\\citealt\*",
+            r"\\singleemcite",
         ],
     )
 
