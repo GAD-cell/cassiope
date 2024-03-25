@@ -14,11 +14,10 @@ For now, it prints the following statistics:
 - Number of subsections
 - Number of subsubsections
 - Font
-- Number of citations
 - Number of figures
 - Number of tables
 - Number of equations
-- Number of references
+- Number of references and citations
 
 """
 
@@ -212,13 +211,12 @@ def paperStats(pdf_path, latex_dir):
     latex = parse_latex(latex_dir)
 
     STATS = {
-        "citations": get_citations(latex),
         "equations": get_equations(latex),
         "figures": get_figures(latex),
         "font": get_font(pdf),
         "pages": get_number_pages(pdf),
         "paragraphs": get_paragraphs(latex),
-        "references": get_references(latex),
+        "content_references": get_references(latex) + get_citations(latex),
         "tables": get_tables(latex),
         "words": get_number_words(pdf),
         "sections": get_sections(latex),
