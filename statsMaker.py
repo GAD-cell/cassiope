@@ -32,6 +32,8 @@ import json
 import tempfile
 import tarfile
 from util.paperStats import paperStats
+import csv
+import colorama
 
 database = "util/downloadPapers/database_filtered.json"
 output = "STATS.csv"
@@ -50,14 +52,17 @@ def filterDatabaseEntryKeys(entry):
     }
 
 
-with open(database, "r") as file:
-    lines = file.readlines()
+def get_stats():
+
+    all_stats = {}
+
+    with open(database, "r") as file:
+        lines = file.readlines()
 
     # Itération sur chaque ligne du fichier JSON
     for index, line in enumerate(lines, start=0):
         try:
             semantic_scholar_data = json.loads(line)
-
             print(
                 f"Processing file util/downloadPapers/LaTeX/{semantic_scholar_data['title']}.zip"
             )
@@ -73,18 +78,55 @@ with open(database, "r") as file:
                     with tarfile.open(latex_path, "r:gz") as tar:
                         tar.extractall(tempdir)
 
+                    paper_stats = paperStats.paperStats(pdf_path, tempdir)
+
                 except FileNotFoundError:
+                    print(
+                        f"{colorama.Fore.YELLOW}Fichier non trouvé : {semantic_scholar_data['title']}{colorama.Style.RESET_ALL}"
+                    )
                     continue
 
-                paper_stats = paperStats.paperStats(pdf_path, tempdir)
+                except tarfile.ReadError:
+                    print(
+                        f"{colorama.Fore.RED}Erreur de décompression GZIP : {semantic_scholar_data['title']}{colorama.Style.RESET_ALL}"
+                    )
+                    continue
+
+                except UnicodeDecodeError:
+                    print(
+                        f"{colorama.Fore.RED}Erreur de décodage Unicode : {semantic_scholar_data['title']}{colorama.Style.RESET_ALL}"
+                    )
+                    continue
 
             filtered_semantic_scholar_data = filterDatabaseEntryKeys(
                 semantic_scholar_data
             )
-            all_stats = filtered_semantic_scholar_data | paper_stats
+            both_stats = filtered_semantic_scholar_data | paper_stats
 
-            print(json.dumps(all_stats, indent=4))
+            all_stats[index] = both_stats
 
         except json.JSONDecodeError:
             print(f"Erreur de décodage JSON sur la ligne {index}: {line}")
             continue
+
+    return all_stats
+
+
+def write_csv(stats):
+    """
+    Stats is a dictionary of dictionaries. Each dictionary is a paper's stats.
+    keys are indexes of the paper in the database.
+    values are dictionaries of the paper's stats.
+    """
+
+    with open(output, "w", newline="") as csvfile:
+        fieldnames = stats[0].keys()
+
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for index, paper in stats.items():
+            writer.writerow(paper)
+
+
+write_csv(get_stats())
