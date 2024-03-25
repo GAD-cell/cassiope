@@ -171,6 +171,13 @@ def clean_filename(filename):
 
 
 def download_papers_from_json(json_file_path):
+
+    # Création des dossiers s'ils n'existent pas
+    pdf_folder_path = "PDF"
+    latex_folder_path = "LaTeX"
+    os.makedirs(pdf_folder_path, exist_ok=True)
+    os.makedirs(latex_folder_path, exist_ok=True)
+
     # Ouverture du fichier JSON
     with open(json_file_path, "r") as file:
         lines = file.readlines()
@@ -186,16 +193,20 @@ def download_papers_from_json(json_file_path):
                 arxiv_id = paper_data["externalids"]["ArXiv"]
                 paper_title = paper_data["title"]
 
+                # Vérifier si le fichier a déjà été téléchargé
+                cleaned_title = clean_filename(paper_title)
+                pdf_file_path = os.path.join(pdf_folder_path, f"{cleaned_title}.pdf")
+                latex_file_path = os.path.join(
+                    latex_folder_path, f"{cleaned_title}.tar.gz"
+                )
+                if os.path.exists(pdf_file_path) and os.path.exists(latex_file_path):
+                    print(f"Le fichier existe déjà : {paper_title}")
+                    continue
+
                 if arxiv_id:
                     # Construction des liens de téléchargement
                     pdf_url = f"https://arxiv.org/pdf/{arxiv_id}.pdf"
                     latex_url = f"https://arxiv.org/e-print/{arxiv_id}"
-
-                    # Création des dossiers s'ils n'existent pas
-                    pdf_folder_path = "PDF"
-                    latex_folder_path = "LaTeX"
-                    os.makedirs(pdf_folder_path, exist_ok=True)
-                    os.makedirs(latex_folder_path, exist_ok=True)
 
                     # Téléchargement du PDF
                     pdf_response = requests.get(pdf_url)
