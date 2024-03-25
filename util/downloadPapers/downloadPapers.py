@@ -186,12 +186,16 @@ def download_papers_from_json(json_file_path):
         total_papers = len(lines)
         downloaded_papers = 0
 
+        total_lines = len(lines)
+
         # Itération sur chaque ligne du fichier JSON
         for index, line in enumerate(lines, start=1):
             try:
                 paper_data = json.loads(line)
                 arxiv_id = paper_data["externalids"]["ArXiv"]
                 paper_title = paper_data["title"]
+
+                print(f"[{index}/{total_lines}] ", end="")
 
                 # Vérifier si le fichier a déjà été téléchargé
                 cleaned_title = clean_filename(paper_title)
