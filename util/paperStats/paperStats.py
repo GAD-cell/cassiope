@@ -117,16 +117,19 @@ def get_number_words(doc):
 
 
 def get_font(doc):
-    fonts = []
-    for page in doc:
-        fonts += page.get_fonts()
+    try:
+        fonts = []
+        for page in doc:
+            fonts += page.get_fonts()
 
-    # Get the most common font
-    most_common_font = Counter(fonts).most_common(1)[0][0][3]
+        # Get the most common font
+        most_common_font = Counter(fonts).most_common(1)[0][0][3]
 
-    # Font string format is like AECCXO+NimbusRomNo9L-Regu
-    # We want to extract the font family
-    return most_common_font.split("+")[1].split("-")[0]
+        # Font string format is like AECCXO+NimbusRomNo9L-Regu
+        # We want to extract the font family
+        return most_common_font.split("+")[1].split("-")[0]
+    except:
+        return "Unknown"
 
 
 def get_citations(latex):
