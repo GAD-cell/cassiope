@@ -1,9 +1,10 @@
-import csv
 import matplotlib.pyplot as plt 
 import pandas as pd
 import numpy as np
 from sklearn import tree
 from sklearn.ensemble import RandomForestRegressor
+from sklearn import linear_model
+import statsmodels.api as sm
 from math import*
 
 def read_csv(fileName):
@@ -13,6 +14,8 @@ def read_csv(fileName):
     del data['corpusid']
     del data['venue']
     del data['font']
+    del data["influentialcitationcount"]
+    del data['year']
     citationcount=data["citationcount"]
     del data["citationcount"]
     return data,citationcount
@@ -29,7 +32,6 @@ def plot(x_name,y_name,data):
     x=data[x_name]
     y=data[y_name]
     plt.plot(x,y,"ob")
-
     plt.show()
 
 def visualize_features(df):
@@ -42,26 +44,30 @@ def visualize_features(df):
             plt.hist(df[col],alpha=0.6,facecolor='g')
             plt.savefig("./figures/"+col)
 
-def regression(X,y,df):
+def randomForest(X,y,df):
     #tree_model = tree.DecisionTreeRegressor(max_depth=10,random_state=None)
     #tree_model.fit(X,y)
-    rf_model = RandomForestRegressor(max_depth=5, min_samples_split=5, n_estimators=500)
+    rf_model = RandomForestRegressor(max_depth=5, min_samples_split=20, n_estimators=500,criterion="squared_error")
     rf_model.fit(X,y)
     #log10_imp=[log10(e) for e in rf_model.feature_importances_]
     print("Importance relative des features: ",rf_model.feature_importances_)
     plt.figure(figsize=(10,7))
     plt.grid(True)
-    plt.yticks(range(13+1,1,-1),df.columns[:-1],fontsize=20)
+    plt.yticks(range(11+1,1,-1),df.columns[:-1],fontsize=20)
     plt.xlabel("Importance relative des features",fontsize=15)
     plt.ylabel("Features\n",fontsize=20)
-    plt.barh(range(13+1,1,-1),width=rf_model.feature_importances_,height=0.5)
+    plt.barh(range(11+1,1,-1),width=rf_model.feature_importances_,height=0.5)
     plt.show()
         
-
+def linear_regression(X,y):
+    model = sm.OLS(y, X)
+    results = model.fit()
+    print(results.summary())
 
 if __name__=="__main__":
     data,citationcount = read_csv("./STATS.csv")
     #plot('content_references','citationcount',data)
     df = make_df(data,citationcount)
     #visualize_features(df)
-    regression(data,citationcount,df)
+    randomForest(data,citationcount,df)
+    #linear_regression(data,citationcount)
