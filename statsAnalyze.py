@@ -6,6 +6,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn import linear_model
 import statsmodels.api as sm
 from math import*
+import seaborn as sns
+
 
 def read_csv(fileName):
     data = pd.read_csv(fileName)
@@ -60,14 +62,26 @@ def randomForest(X,y,df):
     plt.show()
         
 def linear_regression(X,y):
+    del X["paragraphs"]
+    del X["subsections"]
+    del X["subsubsections"]
+    del X["words"]
+    del X["figures"]
     model = sm.OLS(y, X)
     results = model.fit()
     print(results.summary())
+
+def correlation_matrix(df):
+    plt.figure(figsize = (10,8))
+    sns.heatmap(df.corr(method="pearson"), cmap = 'coolwarm',vmin=-1,vmax=1,center=0)
+    plt.show()
+
 
 if __name__=="__main__":
     data,citationcount = read_csv("./STATS.csv")
     #plot('content_references','citationcount',data)
     df = make_df(data,citationcount)
     #visualize_features(df)
-    randomForest(data,citationcount,df)
+    #randomForest(data,citationcount,df)
     #linear_regression(data,citationcount)
+    correlation_matrix(df)
