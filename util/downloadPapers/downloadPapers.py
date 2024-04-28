@@ -144,7 +144,7 @@ def traiter_subset(chemin_archive):
                 lignes_filtrees.append(ligne_json)
 
     # Écrire les lignes filtrées dans un fichier JSON
-    chemin_fichier_filtre = "filtered_database_2021_2022.json"
+    chemin_fichier_filtre = "filtered_database_2021_2022_2023.json"
     with open(chemin_fichier_filtre, "a") as fichier_filtre:
         for ligne in lignes_filtrees:
             json.dump(ligne, fichier_filtre)
@@ -161,7 +161,7 @@ def est_valide(ligne_json):
     # Vérifier si la ligne satisfait les critères
     return (
         ligne_json.get("venue", "") == "International Conference on Machine Learning"
-        and str(ligne_json.get("year", "")) == "2022" or "2021"
+        and str(ligne_json.get("year", "")) == "2022" or "2021" or "2020"
     )
 
 
@@ -278,10 +278,8 @@ def format_json_file(input_file):
 def main():
     # Télecharger les liens de la last_release
     links = getLinks()
-    # J'ai déja filtrer toute la base de données et j'ai gardé tout les icml 2022 dans database_filtered, pas besoin de générer un nouveau fichier json
+    # On télécharge les papiers icml 2020, 2021 et 2022
     filtered_database = telecharger_et_traiter_subsets(links)
-    # Il faut formater le fichier json obtenu pour pouvoir le parcourir
-    #formatted_database = "database_filtered.json"
     # La fonction en dessous créer deux dossiers : "PDF" et "LaTeX", qui vont contenir après téléchargement tout les papiers du .json et qui sont bien référencés sur ArXiv
     download_papers_from_json(filtered_database)
     return
