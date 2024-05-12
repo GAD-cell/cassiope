@@ -1,0 +1,2 @@
+pypandoc_binary==1.13
+language_tool_python==2.8
