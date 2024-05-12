@@ -18,3 +18,20 @@ Les étapes du projet seront les suivantes:
 - Analyse de données sur les papiers existants. Nous consulterons une base de données de papiers déjà écrits pour en extraire des règles communes aux articles les plus populaires. Ces règles seront ensuite ajoutées au système final.
 - Implémentation du système de vérification. Etant donné un article, nous voulons pouvoir écrire la liste de améliorations et corrections possible.
 - Création d’une interface. Un utilisateur devra pouvoir interagir avec notre outil à travers une interface Web.
+
+## PaperStats
+
+Le script paperStats.py permet de récupérer des informations sur un fichier PDF.
+
+### Usage
+
+```python
+# Ligne de commande
+python paperStats.py <path_to_pdf>
+
+# En tant que module
+from util.paperStats import paperStats
+paperStats(<path_to_pdf>, <path_to_latex_project>)
+```
+
+La première fois que le script est exécuté, LanguageTool se télécharge. Cela permet de compter le nombre de fautes d'orthographe dans le document.
