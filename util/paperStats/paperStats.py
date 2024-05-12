@@ -18,18 +18,18 @@ For now, it prints the following statistics:
 - Number of tables
 - Number of equations
 - Number of references and citations
+- Number of grammar errors
 
 """
 
-import os
-import re
-import sys
+from collections import Counter
+import argparse
 import fitz
 import json
-import string
-import argparse
-import numpy as np
-from collections import Counter
+import language_tool_python
+import pypandoc
+import os
+import re
 
 # Define the parser
 parser = argparse.ArgumentParser(description="Infer statistics about a pdf.")
@@ -37,6 +37,45 @@ parser.add_argument("pdf", help="Path to the pdf file.")
 parser.add_argument("latex", help="Path to the latex project directory.")
 
 
+def get_main_latex_file(latex_dir, local=False):
+    """
+    Find the location of the main tex file in a latex project directory
+
+    local: Get the filename starting from latex_dir (useful for pandoc)
+    """
+
+    main_tex = None
+
+    ## Check if main.tex exists
+    if os.path.isfile(os.path.join(latex_dir, "main.tex")):
+        main_tex = os.path.join(latex_dir, "main.tex")
+        if local:
+            return "main.tex"
+        else:
+            return main_tex
+
+    ## If not, search for the main tex file
+    if not main_tex:
+        for root, dirs, files in os.walk(latex_dir):
+            for file in files:
+                if file.endswith(".tex"):
+                    with open(os.path.join(root, file), "r") as f:
+                        if "documentclass" in f.read():
+                            if local:
+                                return file
+                            main_tex = os.path.join(root, file)
+                            break
+            if main_tex:
+                # print(f"Main tex file found: {main_tex}")
+                break
+
+    if not main_tex:
+        raise ValueError("No main tex file found.")
+
+    return main_tex
+
+
+# Process the latex project and return one big latex text file
 def parse_latex(latex_dir):
     """
     Inside the latex project directory, we want to do the following:
@@ -47,28 +86,7 @@ def parse_latex(latex_dir):
     """
 
     # Find the main text file
-    main_tex = None
-
-    ## Check if main.tex exists
-    if os.path.exists(os.path.join(latex_dir, "main.tex")):
-        main_tex = os.path.join(latex_dir, "main.tex")
-        # print(f"Main tex file found directly: {main_tex}")
-
-    ## If not, search for the main tex file
-    if not main_tex:
-        for root, dirs, files in os.walk(latex_dir):
-            for file in files:
-                if file.endswith(".tex"):
-                    with open(os.path.join(root, file), "r") as f:
-                        if "documentclass" in f.read():
-                            main_tex = os.path.join(root, file)
-                            break
-            if main_tex:
-                # print(f"Main tex file found: {main_tex}")
-                break
-
-    if not main_tex:
-        raise ValueError("No main tex file found.")
+    main_tex = get_main_latex_file(latex_dir)
 
     # Find all the tex files that are included in the main file
     included_tex_files = []
@@ -208,6 +226,33 @@ def get_subsubsections(latex):
     return get_number_occurences(latex, [r"\\subsubsection"])
 
 
+def get_grammar_errors(latex_dir):
+    tool = language_tool_python.LanguageTool(
+        "en-US", config={"cacheSize": 1000, "pipelineCaching": True}
+    )
+
+    # Ignore errors on uppercase or titlecase words
+    is_bad_match = (
+        lambda rule: rule.message == "Possible spelling mistake found."
+        and len(rule.replacements)
+        and (rule.replacements[0][0].isupper() or rule.replacements[0][0].istitle())
+    )
+
+    try:
+        main_tex = get_main_latex_file(latex_dir, local=False)
+        text = pypandoc.convert_file(
+            main_tex, "plain", format="latex", extra_args=["--wrap=nonec --verbose=0"]
+        )
+    except RuntimeError:
+        # If pandoc fails to convert the file, return 0
+        return 0
+
+    matches = tool.check(text)
+    matches = [match for match in matches if not is_bad_match(match)]
+
+    return len(matches)
+
+
 def paperStats(pdf_path, latex_dir):
 
     pdf = fitz.open(pdf_path)
@@ -225,6 +270,7 @@ def paperStats(pdf_path, latex_dir):
         "sections": get_sections(latex),
         "subsections": get_subsections(latex),
         "subsubsections": get_subsubsections(latex),
+        "grammar_errors": get_grammar_errors(latex_dir),
     }
 
     return STATS
