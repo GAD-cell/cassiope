@@ -19,6 +19,19 @@ Les étapes du projet seront les suivantes:
 - Implémentation du système de vérification. Etant donné un article, nous voulons pouvoir écrire la liste de améliorations et corrections possible.
 - Création d’une interface. Un utilisateur devra pouvoir interagir avec notre outil à travers une interface Web.
 
+## Installation
+
+### Prérequis
+
+- Python 3.8
+- pip
+
+### Installation des dépendances
+
+```bash
+pip install -r requirements.txt
+```
+
 ## PaperStats
 
 Le script paperStats.py permet de récupérer des informations sur un fichier PDF.
