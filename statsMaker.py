@@ -59,12 +59,14 @@ def get_stats():
     with open(database, "r") as file:
         lines = file.readlines()
 
+    total_lines = len(lines) - 1
+
     # Itération sur chaque ligne du fichier JSON
     for index, line in enumerate(lines, start=0):
         try:
             semantic_scholar_data = json.loads(line)
             print(
-                f"Processing file util/downloadPapers/LaTeX/{semantic_scholar_data['title']}.zip"
+                f"[{index}/{total_lines}] Processing file util/downloadPapers/LaTeX/{semantic_scholar_data['title']}.zip"
             )
 
             pdf_path = f"util/downloadPapers/PDF/{semantic_scholar_data['title']}.pdf"
