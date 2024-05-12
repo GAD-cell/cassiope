@@ -34,6 +34,7 @@ import tarfile
 from util.paperStats import paperStats
 import csv
 import colorama
+import concurrent.futures
 
 database = "util/downloadPapers/database_filtered.json"
 output = "STATS.csv"
@@ -52,21 +53,40 @@ def filterDatabaseEntryKeys(entry):
     }
 
 
-def get_stats():
+# Parallelize the get_stats function, using k threads
+def get_all_stats(k=5):
 
     all_stats = {}
 
     with open(database, "r") as file:
         lines = file.readlines()
 
+    # Split the lines into k parts
+    lines_parts = [lines[i::k] for i in range(k)]
+
+    # Process each part in parallel
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(get_stats, part, i) for i, part in enumerate(lines_parts)
+        ]
+        for future in concurrent.futures.as_completed(futures):
+            all_stats.update(future.result())
+
+    return all_stats
+
+
+def get_stats(lines, process_id=0):
+
     total_lines = len(lines) - 1
+
+    result = {}
 
     # Itération sur chaque ligne du fichier JSON
     for index, line in enumerate(lines, start=0):
         try:
             semantic_scholar_data = json.loads(line)
             print(
-                f"[{index}/{total_lines}] Processing file util/downloadPapers/LaTeX/{semantic_scholar_data['title']}.zip"
+                f"[p{process_id}] [{index}/{total_lines}] Processing file util/downloadPapers/LaTeX/{semantic_scholar_data['title']}.zip"
             )
 
             pdf_path = f"util/downloadPapers/PDF/{semantic_scholar_data['title']}.pdf"
@@ -105,13 +125,13 @@ def get_stats():
             )
             both_stats = filtered_semantic_scholar_data | paper_stats
 
-            all_stats[index] = both_stats
+            result[index] = both_stats
 
         except json.JSONDecodeError:
             print(f"Erreur de décodage JSON sur la ligne {index}: {line}")
             continue
 
-    return all_stats
+    return result
 
 
 def write_csv(stats):
@@ -131,4 +151,4 @@ def write_csv(stats):
             writer.writerow(paper)
 
 
-write_csv(get_stats())
+write_csv(get_all_stats())

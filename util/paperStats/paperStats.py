@@ -270,7 +270,7 @@ def paperStats(pdf_path, latex_dir):
         "sections": get_sections(latex),
         "subsections": get_subsections(latex),
         "subsubsections": get_subsubsections(latex),
-        "grammar_errors": get_grammar_errors(latex_dir),
+        # "grammar_errors": get_grammar_errors(latex_dir),
     }
 
     return STATS
