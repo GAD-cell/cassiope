@@ -31,6 +31,9 @@ import pypandoc
 import os
 import re
 
+from ..topicModeling import topicModeling
+
+
 # Define the parser
 parser = argparse.ArgumentParser(description="Infer statistics about a pdf.")
 parser.add_argument("pdf", help="Path to the pdf file.")
@@ -253,10 +256,16 @@ def get_grammar_errors(latex_dir):
     return len(matches)
 
 
+def getTopics(doc):
+    return topicModeling.topicModeling(doc)[0]
+
+
 def paperStats(pdf_path, latex_dir):
 
     pdf = fitz.open(pdf_path)
     latex = parse_latex(latex_dir)
+
+    topic1, topic2, topic3 = getTopics(pdf_path)
 
     STATS = {
         "equations": get_equations(latex),
@@ -270,6 +279,9 @@ def paperStats(pdf_path, latex_dir):
         "sections": get_sections(latex),
         "subsections": get_subsections(latex),
         "subsubsections": get_subsubsections(latex),
+        "topic1": topic1,
+        "topic2": topic2,
+        "topic3": topic3,
         # "grammar_errors": get_grammar_errors(latex_dir),
     }
 

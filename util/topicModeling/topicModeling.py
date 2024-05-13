@@ -34,7 +34,7 @@ def preprocess_text(text):
     # Suppression des mots courts
     tokens = [word for word in tokens if len(word) > MINIMUM_WORD_LENGTH]
     # Suppression des stopwords
-    en_stop = set(nltk.corpus.stopwords.words("english"))
+    en_stop = set(stopwords.words("english"))
     tokens = [word for word in tokens if word not in en_stop]
     # Lemmatization
     tokens = [get_lemma(word) for word in tokens]
@@ -64,7 +64,7 @@ def get_top_topics(nmf_model, vectorizer, top_n=3):
 
 
 # Fonction principale
-def main(pdf_file):
+def topicModeling(pdf_file):
     # Extraction du texte du PDF
     text = extract_text_from_pdf(pdf_file)
     # Prétraitement du texte
@@ -93,7 +93,7 @@ if __name__ == "__main__":
         nltk.download("stopwords")
 
     pdf_file = "2306.06852v1.pdf"  # Spécifiez le chemin vers votre fichier PDF
-    top_topics = main(pdf_file)
+    top_topics = topicModeling(pdf_file)
     print("Top 3 sujets les plus traités :")
     for idx, topic in enumerate(top_topics[:3]):
         print(f"Sujet {idx + 1}: {', '.join(topic)}")
