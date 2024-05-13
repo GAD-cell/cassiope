@@ -92,7 +92,7 @@ if __name__ == "__main__":
     except LookupError:
         nltk.download("stopwords")
 
-    pdf_file = "2403.06080v1.pdf"  # Spécifiez le chemin vers votre fichier PDF
+    pdf_file = "2306.06852v1.pdf"  # Spécifiez le chemin vers votre fichier PDF
     top_topics = main(pdf_file)
     print("Top 3 sujets les plus traités :")
     for idx, topic in enumerate(top_topics[:3]):
