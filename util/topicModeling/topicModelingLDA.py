@@ -12,7 +12,7 @@ nltk.download("omw-1.4")
 
 stemmer = SnowballStemmer("english")
 
-
+data = ["test1", "test2", "test4", "test6"]
 def lemmatize_stemming(text):
     return stemmer.stem(WordNetLemmatizer().lemmatize(text, pos="n"))
 
