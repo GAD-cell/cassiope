@@ -36,7 +36,10 @@ import csv
 import colorama
 import concurrent.futures
 
-database = "util/downloadPapers/database_filtered.json"
+databases = [
+    "util/downloadPapers/database_filtered.json",
+    "util/downloadPapers/filtered_database_2020.json",
+]
 output = "STATS.csv"
 
 
@@ -57,9 +60,11 @@ def filterDatabaseEntryKeys(entry):
 def get_all_stats(k=5):
 
     all_stats = {}
+    lines = []
 
-    with open(database, "r") as file:
-        lines = file.readlines()
+    for database in databases:
+        with open(database, "r") as f:
+            lines += f.readlines()
 
     # Split the lines into k parts
     lines_parts = [lines[i::k] for i in range(k)]
