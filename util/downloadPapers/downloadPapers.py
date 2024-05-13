@@ -105,7 +105,7 @@ def telecharger_fichier(lien, chemin_destination):
         taille_fichier = int(
             r.headers.get("content-length", 0)
         )  # Taille du fichier à télécharger
-        taille_unitaire = 1024  # Taille unitaire en octets
+        taille_unitaire = 128 * 1024  # Taille unitaire en octets
         bar = tqdm(
             total=taille_fichier,
             unit="B",
