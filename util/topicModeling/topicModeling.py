@@ -2,8 +2,9 @@ import PyPDF2
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import NMF
 from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-from collections import defaultdict
+from nltk.corpus import stopwords, wordnet
+
+MINIMUM_WORD_LENGTH = 4
 
 
 # Fonction pour extraire le texte à partir d'un fichier PDF
@@ -16,12 +17,27 @@ def extract_text_from_pdf(pdf_file):
     return text
 
 
+def get_lemma(word):
+    lemma = wordnet.morphy(word)
+    if lemma is None:
+        return word
+    else:
+        return lemma
+
+
 # Fonction pour nettoyer et prétraiter le texte
 def preprocess_text(text):
     # Tokenization
     tokens = word_tokenize(text)
     # Suppression de la ponctuation
     tokens = [word.lower() for word in tokens if word.isalpha()]
+    # Suppression des mots courts
+    tokens = [word for word in tokens if len(word) > MINIMUM_WORD_LENGTH]
+    # Suppression des stopwords
+    en_stop = set(nltk.corpus.stopwords.words("english"))
+    tokens = [word for word in tokens if word not in en_stop]
+    # Lemmatization
+    tokens = [get_lemma(word) for word in tokens]
     return " ".join(tokens)
 
 
@@ -29,7 +45,7 @@ def preprocess_text(text):
 def apply_nmf_model(text, num_topics=5):
     vectorizer = TfidfVectorizer()
     X = vectorizer.fit_transform([text])
-    nmf = NMF(n_components=num_topics, random_state=42)
+    nmf = NMF(n_components=num_topics, random_state=0)
     nmf.fit(X)
     return nmf, vectorizer
 
@@ -63,13 +79,13 @@ def main(pdf_file):
 # Exemple d'utilisation
 if __name__ == "__main__":
 
-    # Check if punkt and stopwords are downloaded
+    # Check if wordnet  and stopwords are downloaded
     import nltk
 
     try:
-        nltk.data.find("tokenizers/punkt")
+        nltk.data.find("corpora/wordnet")
     except LookupError:
-        nltk.download("punkt")
+        nltk.download("wordnet")
 
     try:
         nltk.data.find("corpora/stopwords")
