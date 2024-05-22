@@ -31,8 +31,16 @@ import pypandoc
 import os
 import re
 
-from ..topicModeling import topicModeling
+# Import the topicModeling module, located at ../topicModeling
+import sys
 
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "topicModeling"))
+
+import topicModeling
+
+tool = language_tool_python.LanguageTool(
+    "en-US", config={"cacheSize": 1000, "pipelineCaching": True}
+)
 
 # Define the parser
 parser = argparse.ArgumentParser(description="Infer statistics about a pdf.")
@@ -230,9 +238,6 @@ def get_subsubsections(latex):
 
 
 def get_grammar_errors(latex_dir):
-    tool = language_tool_python.LanguageTool(
-        "en-US", config={"cacheSize": 1000, "pipelineCaching": True}
-    )
 
     # Ignore errors on uppercase or titlecase words
     is_bad_match = (
@@ -282,7 +287,7 @@ def paperStats(pdf_path, latex_dir):
         "topic1": topic1,
         "topic2": topic2,
         "topic3": topic3,
-        # "grammar_errors": get_grammar_errors(latex_dir),
+        "grammar_errors": get_grammar_errors(latex_dir),
     }
 
     return STATS
