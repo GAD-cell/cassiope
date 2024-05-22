@@ -12,6 +12,10 @@ import requests
 from tqdm import tqdm
 import re
 
+VENUE = "International Conference on Machine Learning"
+YEAR = 2021
+
+venue_initials = "".join([word[0] for word in VENUE.split() if word[0].isupper()]).upper() # "ICML" pour International Conference on Machine Learning, etc...
 
 def getLinks():
     # Define base URL for datasets API
@@ -72,7 +76,7 @@ def telecharger_et_traiter_subsets(liens):
     dossier_destination = "datasets"
 
     # Itérer sur chaque lien
-    for i, lien in enumerate(liens, start=1):
+    for i, lien in enumerate(liens, start=4):
         print(f"Téléchargement et traitement du subset {i}/{len(liens)}...")
         filtered_database = telecharger_et_traiter_subset(lien, dossier_destination, i)
     return filtered_database
@@ -144,7 +148,7 @@ def traiter_subset(chemin_archive):
                 lignes_filtrees.append(ligne_json)
 
     # Écrire les lignes filtrées dans un fichier JSON
-    chemin_fichier_filtre = "filtered_database_2020.json"
+    chemin_fichier_filtre = f"database_{venue_initials}_{YEAR}.json"
     with open(chemin_fichier_filtre, "a") as fichier_filtre:
         for ligne in lignes_filtrees:
             json.dump(ligne, fichier_filtre)
@@ -160,8 +164,8 @@ def traiter_subset(chemin_archive):
 def est_valide(ligne_json):
     # Vérifier si la ligne satisfait les critères
     return (
-        ligne_json.get("venue", "") == "International Conference on Machine Learning"
-        and str(ligne_json.get("year", "")) == "2020"
+        ligne_json.get("venue", "") == VENUE
+        and str(ligne_json.get("year", "")) == str(YEAR)
     )
 
 
