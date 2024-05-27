@@ -11,6 +11,7 @@ import gzip
 import requests
 from tqdm import tqdm
 import re
+import fnmatch
 
 VENUE = "International Conference on Machine Learning"
 YEARS = [
@@ -286,11 +287,15 @@ def format_json_file(input_file):
 
 def main():
     # Télecharger les liens de la last_release
-    links = getLinks()
+    # links = getLinks()
     # On télécharge les papiers icml 2020, 2021, 2022
-    filtered_database = telecharger_et_traiter_subsets(links)
+    # telecharger_et_traiter_subsets(links)
     # La fonction en dessous créer deux dossiers : "PDF" et "LaTeX", qui vont contenir après téléchargement tout les papiers du .json et qui sont bien référencés sur ArXiv
-    download_papers_from_json(filtered_database)
+
+    for file in os.listdir('.'):
+        if fnmatch.fnmatch(file, 'database_*.json'):
+            download_papers_from_json(file)
+    
     return
 
 
