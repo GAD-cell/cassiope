@@ -27,7 +27,7 @@ import argparse
 import fitz
 import json
 # import language_tool_python
-import pypandoc
+#import pypandoc
 import os
 import re
 
@@ -36,7 +36,7 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "topicModeling"))
 
-import topicModeling
+#import topicModeling
 
 """ tool = language_tool_python.LanguageTool(
     "en-US", config={"cacheSize": 1000, "pipelineCaching": True}
@@ -261,8 +261,8 @@ def get_subsubsections(latex):
     return len(matches) """
 
 
-def getTopics(doc):
-    return topicModeling.topicModeling(doc)[0]
+""" def getTopics(doc):
+    return topicModeling.topicModeling(doc)[0] """
 
 
 def paperStats(pdf_path, latex_dir):
