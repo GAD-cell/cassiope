@@ -81,7 +81,7 @@ def telecharger_et_traiter_subsets(liens):
     dossier_destination = "datasets"
 
     # Itérer sur chaque lien
-    for i, lien in enumerate(liens, start=4):
+    for i, lien in enumerate(liens, start=1):
         print(f"Téléchargement et traitement du subset {i}/{len(liens)}...")
         filtered_database = telecharger_et_traiter_subset(lien, dossier_destination, i)
     return filtered_database
