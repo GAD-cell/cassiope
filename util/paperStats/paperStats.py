@@ -26,7 +26,7 @@ from collections import Counter
 import argparse
 import fitz
 import json
-import language_tool_python
+# import language_tool_python
 import pypandoc
 import os
 import re
@@ -38,9 +38,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "topicModeling"))
 
 import topicModeling
 
-tool = language_tool_python.LanguageTool(
+""" tool = language_tool_python.LanguageTool(
     "en-US", config={"cacheSize": 1000, "pipelineCaching": True}
-)
+) """
 
 # Define the parser
 parser = argparse.ArgumentParser(description="Infer statistics about a pdf.")
@@ -237,7 +237,7 @@ def get_subsubsections(latex):
     return get_number_occurences(latex, [r"\\subsubsection"])
 
 
-def get_grammar_errors(latex_dir):
+""" def get_grammar_errors(latex_dir):
 
     # Ignore errors on uppercase or titlecase words
     is_bad_match = (
@@ -258,7 +258,7 @@ def get_grammar_errors(latex_dir):
     matches = tool.check(text)
     matches = [match for match in matches if not is_bad_match(match)]
 
-    return len(matches)
+    return len(matches) """
 
 
 def getTopics(doc):
@@ -270,7 +270,7 @@ def paperStats(pdf_path, latex_dir):
     pdf = fitz.open(pdf_path)
     latex = parse_latex(latex_dir)
 
-    topic1, topic2, topic3 = getTopics(pdf_path)
+    # topic1, topic2, topic3 = getTopics(pdf_path)
 
     STATS = {
         "equations": get_equations(latex),
@@ -284,10 +284,10 @@ def paperStats(pdf_path, latex_dir):
         "sections": get_sections(latex),
         "subsections": get_subsections(latex),
         "subsubsections": get_subsubsections(latex),
-        "topic1": topic1,
-        "topic2": topic2,
-        "topic3": topic3,
-        "grammar_errors": get_grammar_errors(latex_dir),
+        #"topic1": topic1,
+        # "topic2": topic2,
+        # "topic3": topic3,
+        # "grammar_errors": get_grammar_errors(latex_dir),
     }
 
     return STATS
