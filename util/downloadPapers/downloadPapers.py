@@ -148,11 +148,7 @@ def traiter_subset(chemin_archive):
                 lignes_filtrees.append(ligne_json)
 
     # Écrire les lignes filtrées dans un fichier JSON
-<<<<<<< HEAD
     chemin_fichier_filtre = "filtered_database_2020_2021_2022.json"
-=======
-    chemin_fichier_filtre = f"database_{venue_initials}_{YEAR}.json"
->>>>>>> 8c60c7963684cf1376187bca7f78251865c87c20
     with open(chemin_fichier_filtre, "a") as fichier_filtre:
         for ligne in lignes_filtrees:
             json.dump(ligne, fichier_filtre)
@@ -168,13 +164,8 @@ def traiter_subset(chemin_archive):
 def est_valide(ligne_json):
     # Vérifier si la ligne satisfait les critères
     return (
-<<<<<<< HEAD
         ligne_json.get("venue", "") == "International Conference on Machine Learning"
         and str(ligne_json.get("year", "")) in ["2020", "2021", "2022"]
-=======
-        ligne_json.get("venue", "") == VENUE
-        and str(ligne_json.get("year", "")) == str(YEAR)
->>>>>>> 8c60c7963684cf1376187bca7f78251865c87c20
     )
 
 
