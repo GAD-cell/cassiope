@@ -13,7 +13,12 @@ from tqdm import tqdm
 import re
 
 VENUE = "International Conference on Machine Learning"
-YEAR = 2021
+YEARS = [
+    2020, 
+    2021, 
+    2022,
+    2023
+]
 
 venue_initials = "".join([word[0] for word in VENUE.split() if word[0].isupper()]).upper() # "ICML" pour International Conference on Machine Learning, etc...
 
@@ -148,7 +153,7 @@ def traiter_subset(chemin_archive):
                 lignes_filtrees.append(ligne_json)
 
     # Écrire les lignes filtrées dans un fichier JSON
-    chemin_fichier_filtre = "filtered_database_2020_2021_2022.json"
+    chemin_fichier_filtre = f"database_{venue_initials}_{YEARS[0]}-{YEARS[-1]}.json"
     with open(chemin_fichier_filtre, "a") as fichier_filtre:
         for ligne in lignes_filtrees:
             json.dump(ligne, fichier_filtre)
@@ -165,7 +170,7 @@ def est_valide(ligne_json):
     # Vérifier si la ligne satisfait les critères
     return (
         ligne_json.get("venue", "") == "International Conference on Machine Learning"
-        and str(ligne_json.get("year", "")) in ["2020", "2021", "2022"]
+        and ligne_json.get("year", "") in YEARS
     )
 
 
