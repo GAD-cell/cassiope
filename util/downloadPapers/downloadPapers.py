@@ -11,9 +11,15 @@ import gzip
 import requests
 from tqdm import tqdm
 import re
+import fnmatch
 
 VENUE = "International Conference on Machine Learning"
-YEAR = 2021
+YEARS = [
+    2020, 
+    2021, 
+    2022,
+    2023
+]
 
 venue_initials = "".join([word[0] for word in VENUE.split() if word[0].isupper()]).upper() # "ICML" pour International Conference on Machine Learning, etc...
 
@@ -76,7 +82,7 @@ def telecharger_et_traiter_subsets(liens):
     dossier_destination = "datasets"
 
     # Itérer sur chaque lien
-    for i, lien in enumerate(liens, start=4):
+    for i, lien in enumerate(liens, start=1):
         print(f"Téléchargement et traitement du subset {i}/{len(liens)}...")
         filtered_database = telecharger_et_traiter_subset(lien, dossier_destination, i)
     return filtered_database
@@ -148,7 +154,7 @@ def traiter_subset(chemin_archive):
                 lignes_filtrees.append(ligne_json)
 
     # Écrire les lignes filtrées dans un fichier JSON
-    chemin_fichier_filtre = "filtered_database_2020_2021_2022.json"
+    chemin_fichier_filtre = f"database_{venue_initials}_{YEARS[0]}-{YEARS[-1]}.json"
     with open(chemin_fichier_filtre, "a") as fichier_filtre:
         for ligne in lignes_filtrees:
             json.dump(ligne, fichier_filtre)
@@ -165,7 +171,7 @@ def est_valide(ligne_json):
     # Vérifier si la ligne satisfait les critères
     return (
         ligne_json.get("venue", "") == "International Conference on Machine Learning"
-        and str(ligne_json.get("year", "")) in ["2020", "2021", "2022"]
+        and ligne_json.get("year", "") in YEARS
     )
 
 
@@ -281,11 +287,15 @@ def format_json_file(input_file):
 
 def main():
     # Télecharger les liens de la last_release
-    links = getLinks()
+    # links = getLinks()
     # On télécharge les papiers icml 2020, 2021, 2022
-    filtered_database = telecharger_et_traiter_subsets(links)
+    # telecharger_et_traiter_subsets(links)
     # La fonction en dessous créer deux dossiers : "PDF" et "LaTeX", qui vont contenir après téléchargement tout les papiers du .json et qui sont bien référencés sur ArXiv
-    download_papers_from_json(filtered_database)
+
+    for file in os.listdir('.'):
+        if fnmatch.fnmatch(file, 'database_*.json'):
+            download_papers_from_json(file)
+    
     return
 
 
