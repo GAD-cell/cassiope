@@ -2,3 +2,4 @@ pypandoc_binary==1.13
 language_tool_python==2.8
 gensim==4.3.2
 nltk==3.8.1
+bertopic==0.16.2
