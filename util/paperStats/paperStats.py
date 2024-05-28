@@ -32,9 +32,9 @@ import os
 import re
 
 # Import the topicModeling module, located at ../topicModeling
-import sys
+# import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "topicModeling"))
+# sys.path.append(os.path.join(os.path.dirname(__file__), "..", "topicModeling"))
 
 #import topicModeling
 
@@ -273,17 +273,17 @@ def paperStats(pdf_path, latex_dir):
     # topic1, topic2, topic3 = getTopics(pdf_path)
 
     STATS = {
+        "content_references": get_references(latex) + get_citations(latex),
         "equations": get_equations(latex),
         "figures": get_figures(latex),
         "font": get_font(pdf),
         "pages": get_number_pages(pdf),
         "paragraphs": get_paragraphs(latex),
-        "content_references": get_references(latex) + get_citations(latex),
-        "tables": get_tables(latex),
-        "words": get_number_words(pdf),
         "sections": get_sections(latex),
         "subsections": get_subsections(latex),
         "subsubsections": get_subsubsections(latex),
+        "tables": get_tables(latex),
+        "words": get_number_words(pdf),
         #"topic1": topic1,
         # "topic2": topic2,
         # "topic3": topic3,
