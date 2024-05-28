@@ -1,8 +1,8 @@
 """
-Takes a database of papers in json format, processes them with util/paperStats/paperStats.py and outputs a CSV with the statistics of each paper.
+Takes a database of papers in json format, processes them with paperStats/paperStats.py and outputs a CSV with the statistics of each paper.
 
-It is expected that the paper files have been downloaded with util/downloadPapers/downloadPapers.py.
-PDFs should be in util/downloadPapers/PDF and zipped LaTeX projets in util/downloadPapers/LaTeX.
+It is expected that the paper files have been downloaded with downloadPapers/downloadPapers.py.
+PDFs should be in downloadPapers/PDF and zipped LaTeX projets in downloadPapers/LaTeX.
 Their filesnames should be {title}.pdf and {title}.tar.gz respectively.
 
 Sample database entry :
@@ -30,7 +30,7 @@ Sample database entry :
 
 from multiprocessing import Manager
 from tqdm import tqdm
-from util.paperStats import paperStats
+from paperStats import paperStats
 import colorama
 import concurrent.futures
 import csv
@@ -40,8 +40,8 @@ import re
 import tarfile
 import tempfile
 
-database = "util/downloadPapers/filtered_database_2020_2021_2022.json"
-output = "STATS.csv"
+database = "downloadPapers/filtered_database_2020_2021_2022.json"
+output = "paperStats/STATS.csv"
 
 # Methode utilisée par downloadPapers pour nettoyer les noms de fichiers. On l'utilise ici pour retrouver les fichiers à traiter.
 def clean_filename(filename):
@@ -86,7 +86,7 @@ def get_all_stats(k=20):
 
     nb_final_lines = 0
 
-    pdfLocation = "util/downloadPapers/PDF/"
+    pdfLocation = "downloadPapers/PDF/"
 
     # Fill 'lines' with the names of the PDF files located in pdfLocation
     for file in os.listdir(pdfLocation):
@@ -138,9 +138,9 @@ def get_stats(titles, process_id=0):
     ):
         try:
 
-            pdf_path = f"util/downloadPapers/PDF/{title}.pdf"
+            pdf_path = f"downloadPapers/PDF/{title}.pdf"
             latex_path = (
-                f"util/downloadPapers/LaTeX/{title}.tar.gz"
+                f"downloadPapers/LaTeX/{title}.tar.gz"
             )
 
             # Unzip the LaTeX project to a temporary directory
