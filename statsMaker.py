@@ -28,22 +28,45 @@ Sample database entry :
 
 """
 
-import json
-import tempfile
-import tarfile
+from multiprocessing import Manager
+from tqdm import tqdm
 from util.paperStats import paperStats
-import csv
 import colorama
 import concurrent.futures
+import csv
+import json
+import os
+import re
+import tarfile
+import tempfile
 
-databases = [
-    "util/downloadPapers/database_filtered.json",
-    "util/downloadPapers/filtered_database_2020.json",
-]
+database = "util/downloadPapers/filtered_database_2020_2021_2022.json"
 output = "STATS.csv"
 
+# Methode utilisée par downloadPapers pour nettoyer les noms de fichiers. On l'utilise ici pour retrouver les fichiers à traiter.
+def clean_filename(filename):
+    # Supprimer les caractères non valides pour un nom de fichier sur Windows
+    return re.sub(r'[\\/:"*?<>|]', "", filename)
 
-def filterDatabaseEntryKeys(entry):
+# Retrouve les données d'un papier dans la base de données à partir de son titre
+def getSemanticScholarData(title):
+
+    # Each line is a json object
+    lines = []
+
+    with open(database, "r") as f:
+        lines += f.readlines()
+
+    # Look for paper with title 'title' in the database
+    for line in lines:
+        entry = json.loads(line)
+        cleaned_entry = clean_filename(entry["title"])
+        if cleaned_entry == title:
+            break
+    else:
+        raise ValueError(f"Paper not found in database : {title}")
+    
+
     return {
         "corpusid": entry["corpusid"],
         "arxiv_id": entry["externalids"]["ArXiv"],
@@ -57,46 +80,67 @@ def filterDatabaseEntryKeys(entry):
 
 
 # Parallelize the get_stats function, using k threads
-def get_all_stats(k=5):
+def get_all_stats(k=20):
 
+    titles = []
+
+    nb_final_lines = 0
+
+    pdfLocation = "util/downloadPapers/PDF/"
+
+    # Fill 'lines' with the names of the PDF files located in pdfLocation
+    for file in os.listdir(pdfLocation):
+        if file.endswith(".pdf"):
+            titles.append(file.replace(".pdf", ""))
+
+    titles.sort()
+
+    # Split the lines into k parts for parallel processing
+    lines_parts = [
+        titles[i::k] for i in range(k)
+    ]
+
+    # Process each part in parallel with k threads
+    # Each thread will call get_stats with a different part of the lines
+
+    manager = Manager()
+    all_stats_by_thread = manager.dict()
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=k) as executor:
+        futures = [executor.submit(get_stats, lines, i) for i, lines in enumerate(lines_parts)]
+
+        # Wait for all threads to finish
+        concurrent.futures.wait(futures)
+
+        # Get the results from all threads
+        for i, future in enumerate(futures):
+            all_stats_by_thread[i] = future.result()
+    
+    # Merge the results from all threads
     all_stats = {}
-    lines = []
-
-    for database in databases:
-        with open(database, "r") as f:
-            lines += f.readlines()
-
-    # Split the lines into k parts
-    lines_parts = [lines[i::k] for i in range(k)]
-
-    # Process each part in parallel
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [
-            executor.submit(get_stats, part, i) for i, part in enumerate(lines_parts)
-        ]
-        for future in concurrent.futures.as_completed(futures):
-            all_stats.update(future.result())
+    for thread_stats in all_stats_by_thread.values():
+        for stats in thread_stats.values():
+            all_stats[stats["corpusid"]] = stats
 
     return all_stats
 
 
-def get_stats(lines, process_id=0):
+def get_stats(titles, process_id=0):
 
-    total_lines = len(lines) - 1
+    total_lines = len(titles) - 1
 
     result = {}
 
     # Itération sur chaque ligne du fichier JSON
-    for index, line in enumerate(lines, start=0):
+    for index, title in tqdm(enumerate(titles,start=0),
+        total=total_lines,
+        desc=f"T{process_id}"
+    ):
         try:
-            semantic_scholar_data = json.loads(line)
-            print(
-                f"[p{process_id}] [{index}/{total_lines}] Processing file util/downloadPapers/LaTeX/{semantic_scholar_data['title']}.zip"
-            )
 
-            pdf_path = f"util/downloadPapers/PDF/{semantic_scholar_data['title']}.pdf"
+            pdf_path = f"util/downloadPapers/PDF/{title}.pdf"
             latex_path = (
-                f"util/downloadPapers/LaTeX/{semantic_scholar_data['title']}.tar.gz"
+                f"util/downloadPapers/LaTeX/{title}.tar.gz"
             )
 
             # Unzip the LaTeX project to a temporary directory
@@ -107,33 +151,32 @@ def get_stats(lines, process_id=0):
 
                     paper_stats = paperStats.paperStats(pdf_path, tempdir)
 
-                except FileNotFoundError:
+                except FileNotFoundError as e:
                     print(
-                        f"{colorama.Fore.YELLOW}Fichier non trouvé : {semantic_scholar_data['title']}{colorama.Style.RESET_ALL}"
+                        f"{colorama.Fore.YELLOW}Fichier non trouvé : {title}{colorama.Style.RESET_ALL}"
                     )
+                    raise e
                     continue
 
                 except tarfile.ReadError:
                     print(
-                        f"{colorama.Fore.RED}Erreur de décompression GZIP : {semantic_scholar_data['title']}{colorama.Style.RESET_ALL}"
+                        f"{colorama.Fore.RED}Erreur de décompression GZIP : {title}{colorama.Style.RESET_ALL}"
                     )
                     continue
 
                 except UnicodeDecodeError:
                     print(
-                        f"{colorama.Fore.RED}Erreur de décodage Unicode : {semantic_scholar_data['title']}{colorama.Style.RESET_ALL}"
+                        f"{colorama.Fore.RED}Erreur de décodage Unicode : {title}{colorama.Style.RESET_ALL}"
                     )
                     continue
 
-            filtered_semantic_scholar_data = filterDatabaseEntryKeys(
-                semantic_scholar_data
-            )
+            filtered_semantic_scholar_data = getSemanticScholarData(title)
             both_stats = filtered_semantic_scholar_data | paper_stats
 
             result[index] = both_stats
 
-        except json.JSONDecodeError:
-            print(f"Erreur de décodage JSON sur la ligne {index}: {line}")
+        except Exception as e:
+            print(f"Erreur {title} : {e}")
             continue
 
     return result
@@ -146,8 +189,10 @@ def write_csv(stats):
     values are dictionaries of the paper's stats.
     """
 
+    print(f"Writing to {output} with {len(stats)} lines.")
+
     with open(output, "w", newline="") as csvfile:
-        fieldnames = stats[0].keys()
+        fieldnames = next(iter(stats.values())).keys()
 
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
@@ -155,5 +200,5 @@ def write_csv(stats):
         for index, paper in stats.items():
             writer.writerow(paper)
 
-
-write_csv(get_all_stats())
+if __name__ == "__main__":
+    write_csv(get_all_stats())
