@@ -78,7 +78,7 @@ def correlation_matrix(df):
 
 
 if __name__=="__main__":
-    data,citationcount = read_csv("./STATS.csv")
+    data,citationcount = read_csv("../STATS.csv")
     #plot('content_references','citationcount',data)
     df = make_df(data,citationcount)
     #visualize_features(df)

@@ -111,11 +111,17 @@ def parse_latex(latex_dir):
 
     # Read the main tex file and all the included tex files
     with open(main_tex, "r") as f:
-        latex = f.read()
+        try:
+            latex = f.read()
+        except:
+            latex = ""
 
     for tex_file in included_tex_files:
-        with open(os.path.join(latex_dir, tex_file), "r") as f:
-            latex += f.read()
+        try:
+            with open(os.path.join(latex_dir, tex_file), "r") as f:
+                latex += f.read()
+        except:
+            continue
 
     # Remove comments
     latex = re.sub(r"%.*", "", latex)
