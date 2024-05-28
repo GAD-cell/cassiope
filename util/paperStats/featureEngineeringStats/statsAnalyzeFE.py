@@ -11,6 +11,7 @@ import seaborn as sns
 
 def read_csv(fileName):
     data = pd.read_csv(fileName)
+    total_rows = len(data)  # Compter le nombre total de lignes avant filtrage
     del data['title']
     del data['arxiv_id']
     del data['corpusid']
@@ -20,8 +21,26 @@ def read_csv(fileName):
     del data['year']
     citationcount=data["citationcount"]
     del data["citationcount"]
+    # Filtrer les lignes selon les critères spécifiés
+    data = data[(data['sections'] >= 3) & (data['subsections'] >= 1)]
+    retained_rows = len(data)  # Compter le nombre de lignes après filtrage
+
+    # Afficher le nombre de lignes retenues par rapport au nombre total de lignes
+    print(f"Nombre de lignes retenues: {retained_rows} sur {total_rows} lignes au total")
     return data,citationcount
 
+
+def create_features(data):
+    # Creating the new features as per the user's request
+    data['referencecount_per_page'] = data['referencecount'] / data['pages']
+    data['figures_tables_per_page'] = (data['figures'] + data['tables']) / data['pages']
+    data['equations_per_page'] = data['equations'] / data['pages']
+    data['subsections_per_page'] = data['subsections'] / data['pages']
+
+    # Select the new features and the target variable
+    features = data[['referencecount_per_page', 'figures_tables_per_page',
+                     'equations_per_page', 'subsections_per_page']]
+    return features
 def make_df(X,y):
     df1 = pd.DataFrame(data=X)
     df2=pd.DataFrame(data=y,columns=['citationcount'])
@@ -78,9 +97,10 @@ def correlation_matrix(df):
 
 
 if __name__=="__main__":
-    data,citationcount = read_csv("./STATS.csv")
+    data,citationcount = read_csv("../STATS.csv")
     #plot('content_references','citationcount',data)
-    df = make_df(data,citationcount)
+    features = create_features(data)
+    df = make_df(features,citationcount)
     #visualize_features(df)
     #randomForest(data,citationcount,df)
     #linear_regression(data,citationcount)
