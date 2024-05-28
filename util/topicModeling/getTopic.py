@@ -61,6 +61,8 @@ def gen_visualize_documents(topic_model,docs_dl):
                                         height=600)
     fig.write_image("visualize_topic/visualize_docs.png")
 
+
+
 if __name__=="__main__":
     topic_model,docs_dl=model_train()
     #gen_heatmap(topic_model)
