@@ -20,6 +20,7 @@ def read_csv(fileName):
     del data["influentialcitationcount"]
     del data['year']
     citationcount=data["citationcount"]
+    citationcount=citationcount[(data['sections'] >= 3) & (data['subsections'] >= 1)]
     del data["citationcount"]
     # Filtrer les lignes selon les critères spécifiés
     data = data[(data['sections'] >= 3) & (data['subsections'] >= 1)]
@@ -66,32 +67,26 @@ def visualize_features(df):
             plt.savefig("./figures/"+col)
 
 def randomForest(X,y,df):
-    #tree_model = tree.DecisionTreeRegressor(max_depth=10,random_state=None)
-    #tree_model.fit(X,y)
     rf_model = RandomForestRegressor(max_depth=5, min_samples_split=20, n_estimators=500,criterion="squared_error")
     rf_model.fit(X,y)
-    #log10_imp=[log10(e) for e in rf_model.feature_importances_]
-    print("Importance relative des features: ",rf_model.feature_importances_)
-    plt.figure(figsize=(10,7))
+    print("Importance relative des features pour le nombre de citations : ",rf_model.feature_importances_)
+    plt.figure(figsize=(20,6))
     plt.grid(True)
-    plt.yticks(range(11+1,1,-1),df.columns[:-1],fontsize=20)
-    plt.xlabel("Importance relative des features",fontsize=15)
-    plt.ylabel("Features\n",fontsize=20)
-    plt.barh(range(11+1,1,-1),width=rf_model.feature_importances_,height=0.5)
+    plt.yticks(range(len(df.columns[:-1])), df.columns[:-1], fontsize=10)
+    plt.xlabel("Importance relative des features pour le nombre de citations",fontsize=15)
+    plt.ylabel("Features\n",fontsize=15)
+    plt.barh(range(len(df.columns[:-1])), width=rf_model.feature_importances_, height=0.5)
     plt.show()
         
 def linear_regression(X,y):
-    del X["paragraphs"]
-    del X["subsections"]
-    del X["subsubsections"]
-    del X["words"]
-    del X["figures"]
+    # Ajuster le modèle de régression linéaire
+    X = sm.add_constant(X)  # Ajouter une constante pour l'interception
     model = sm.OLS(y, X)
     results = model.fit()
     print(results.summary())
 
 def correlation_matrix(df):
-    plt.figure(figsize = (10,8))
+    plt.figure(figsize = (15,15))
     sns.heatmap(df.corr(method="pearson"), cmap = 'coolwarm',vmin=-1,vmax=1,center=0)
     plt.show()
 
@@ -102,6 +97,6 @@ if __name__=="__main__":
     features = create_features(data)
     df = make_df(features,citationcount)
     #visualize_features(df)
-    #randomForest(data,citationcount,df)
-    #linear_regression(data,citationcount)
+    #randomForest(features,citationcount,df)
+    #linear_regression(features,citationcount)
     correlation_matrix(df)
