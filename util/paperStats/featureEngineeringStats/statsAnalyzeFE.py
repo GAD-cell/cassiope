@@ -12,7 +12,6 @@ import seaborn as sns
 def read_csv(fileName):
     data = pd.read_csv(fileName)
     total_rows = len(data)  # Compter le nombre total de lignes avant filtrage
-    del data['title']
     del data['arxiv_id']
     del data['corpusid']
     del data['venue']
@@ -37,10 +36,10 @@ def create_features(data):
     data['figures_tables_per_page'] = (data['figures'] + data['tables']) / data['pages']
     data['equations_per_page'] = data['equations'] / data['pages']
     data['subsections_per_page'] = data['subsections'] / data['pages']
-
+    data['title_length'] = data['title'].str.len()
     # Select the new features and the target variable
     features = data[['referencecount_per_page', 'figures_tables_per_page',
-                     'equations_per_page', 'subsections_per_page']]
+                     'equations_per_page', 'subsections_per_page','title_length']]
     return features
 def make_df(X,y):
     df1 = pd.DataFrame(data=X)
@@ -96,6 +95,7 @@ if __name__=="__main__":
     #plot('content_references','citationcount',data)
     features = create_features(data)
     df = make_df(features,citationcount)
+
     #visualize_features(df)
     #randomForest(features,citationcount,df)
     #linear_regression(features,citationcount)

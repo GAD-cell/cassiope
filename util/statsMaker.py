@@ -71,6 +71,7 @@ def getSemanticScholarData(title):
         "corpusid": entry["corpusid"],
         "arxiv_id": entry["externalids"]["ArXiv"],
         "title": entry["title"],
+        "authors": entry["authors"],
         "filename": clean_filename(entry["title"]),
         "year": entry["year"],
         "venue": entry["venue"],
