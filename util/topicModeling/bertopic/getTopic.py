@@ -111,14 +111,15 @@ def gen_visualize_documents(topic_model,docs_dl):
     fig=topic_model.visualize_documents(docs_dl,
                                         topics=list(range(30)),
                                         height=600)
-    pio.write_image(fig, "visualize_topic/output.png", engine="kaleido")
+    #pio.write_image(fig, "visualize_topic/output.png", engine="kaleido")
+    fig.show()
 
 
 
 if __name__=="__main__":
     topic_model,docs_dl=model_train()
-    representative_docs_gen(topic_model)
+    #representative_docs_gen(topic_model)
     
     #gen_heatmap(topic_model)
-    #gen_visualize_documents(topic_model,docs_dl)
+    gen_visualize_documents(topic_model,docs_dl)
 
