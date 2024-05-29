@@ -33,6 +33,7 @@ def docsMaker(pdf_folder):
 def hash_maker():
     hashmap={}
     pdfs=os.listdir(pdf_folder)
+    pdfs=remove_pdf_suffix(pdfs)
     with open("docs_dl.txt", "rb") as fp:   # Unpickling
         docs_dl = pickle.load(fp)
     fichier=0
@@ -41,7 +42,10 @@ def hash_maker():
         fichier +=1
 
     return hashmap
-        
+
+def remove_pdf_suffix(pdf_list):
+    return [filename[:-4] if filename.endswith(".pdf") else filename for filename in pdf_list]
+     
 def get_representative_docs(representative_docs,hashmap):
     docs=[]
     for doc in representative_docs:
@@ -62,7 +66,8 @@ def representative_docs_gen(topic_model):
     with open(input_file, mode='r', newline='') as infile, open(output_file, mode='w', newline='') as outfile:
         reader = csv.reader(infile)
         writer = csv.writer(outfile)
-        next(reader,None)
+        header = next(reader) 
+        writer.writerow(header)
         for i, row in enumerate(reader):
             if i < len(docs):
                 if len(row) > 4:  
@@ -118,8 +123,8 @@ def gen_visualize_documents(topic_model,docs_dl):
 
 if __name__=="__main__":
     topic_model,docs_dl=model_train()
-    #representative_docs_gen(topic_model)
+    representative_docs_gen(topic_model)
     
     #gen_heatmap(topic_model)
-    gen_visualize_documents(topic_model,docs_dl)
+    #gen_visualize_documents(topic_model,docs_dl)
 

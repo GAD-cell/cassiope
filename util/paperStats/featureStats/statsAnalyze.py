@@ -7,7 +7,8 @@ from sklearn import linear_model
 import statsmodels.api as sm
 from math import*
 import seaborn as sns
-
+import csv
+import ast
 
 def read_csv(fileName):
     data = pd.read_csv(fileName)
@@ -76,12 +77,29 @@ def correlation_matrix(df):
     sns.heatmap(df.corr(method="pearson"), cmap = 'coolwarm',vmin=-1,vmax=1,center=0)
     plt.show()
 
+def gen_citationcount_per_topic():
+    bertopic_df=pd.read_csv('/home/gad/Documents/cassiope/cassiope/util/topicModeling/bertopic/BERTopic_modified.csv')
+    stat_df = pd.read_csv('/home/gad/Documents/cassiope/cassiope/util/paperStats/STATS.csv')
+    citationcount_per_topic = []
+    bertopic_df["Representative_Docs"]=bertopic_df["Representative_Docs"].apply(ast.literal_eval)
+    for docs in bertopic_df["Representative_Docs"]:
+        count=0
+        for i in range(3):
+            for filename in stat_df["filename"]:
+                if docs[i]==filename:
+                    row = stat_df[stat_df['filename'] == filename]
+                    count += int(row["citationcount"].values[0])
+        citationcount_per_topic.append(count)
+    bertopic_df["citationcount"]=citationcount_per_topic
+    bertopic_df.to_csv('/home/gad/Documents/cassiope/cassiope/util/paperStats/STATS_topic.csv', index=False)
+    return citationcount_per_topic
 
 if __name__=="__main__":
-    data,citationcount = read_csv("../STATS.csv")
+    #data,citationcount = read_csv("../STATS.csv")
     #plot('content_references','citationcount',data)
-    df = make_df(data,citationcount)
+    #df = make_df(data,citationcount)
     #visualize_features(df)
     #randomForest(data,citationcount,df)
     #linear_regression(data,citationcount)
-    correlation_matrix(df)
+    #correlation_matrix(df)
+    gen_citationcount_per_topic()
