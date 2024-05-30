@@ -8,7 +8,12 @@ from sklearn.feature_extraction.text import CountVectorizer
 import plotly.io as pio
 import csv
 import sys
+import nltk
+from nltk.corpus import stopwords
+import numpy as np
 
+# Télécharger les stopwords de nltk si ce n'est pas déjà fait
+nltk.download('stopwords')
 
 pdf_folder = '/home/gad/Documents/PDF'
 
@@ -52,10 +57,10 @@ def get_representative_docs(representative_docs,hashmap):
         docs.append(hashmap[doc])
     return docs
 
-def representative_docs_gen(topic_model):
+def representative_docs_gen(topic_model,representative_docs):
     csv.field_size_limit(sys.maxsize)
     hashmap=hash_maker()
-    representative_docs=csv_gen(topic_model)
+    #representative_docs=csv_gen(topic_model)
     docs=[]
     for representative in representative_docs:
         docs.append(get_representative_docs(representative,hashmap))
@@ -81,22 +86,41 @@ def representative_docs_gen(topic_model):
 
 
 def model_train():
+    custom_stopwords = set(stopwords.words('english'))
+    custom_stopwords.update(["al","et","et al"])
+    custom_stopwords = list(custom_stopwords)
+
     with open("docs_dl.txt", "rb") as fp:   # Unpickling
         docs_dl = pickle.load(fp)
-
     if not os.path.exists("DF_bertopic.txt"):
-        vectorizer_model = CountVectorizer(ngram_range=(1, 2), stop_words="english")
+        vectorizer_model = CountVectorizer( stop_words=custom_stopwords)
         topic_model = BERTopic(vectorizer_model=vectorizer_model)
         topics, probs = topic_model.fit_transform(docs_dl)
-
+        
+        nr_docs = 5
+        # Obtenir les documents représentatifs manuellement
+        representative_docs = []
+        for topic in set(topics):
+            topic_docs = np.array(docs_dl)[np.array(topics) == topic]
+            doc_probs = np.array(probs)[np.array(topics) == topic]
+            
+            # Trier les documents par leur score de probabilité décroissante
+            top_indices = doc_probs.argsort()[-nr_docs:][::-1]
+            representative_docs.append(topic_docs[top_indices])
+        
+        with open("Representative_topic.txt","wb") as fp:
+            pickle.dump(representative_docs,fp)
+        
         with open("DF_bertopic.txt","wb") as fp:
             pickle.dump(topic_model,fp)
 
     else : 
         with open("DF_bertopic.txt","rb") as fp:
             topic_model=pickle.load(fp) 
+        with open("Representative_topic.txt","rb") as fp:
+            representative_docs=pickle.load(fp) 
     
-    return topic_model,docs_dl
+    return topic_model,docs_dl,representative_docs
 
 
 def csv_gen(topic_model):
@@ -110,7 +134,7 @@ def csv_gen(topic_model):
 
 def gen_heatmap(topic_model):
     fig=topic_model.visualize_heatmap(n_clusters=20)
-    fig.write_image("visualize_topic/heat_map.png")
+    fig.write_image("/home/gad/Documents/cassiope/cassiope/util/topicModeling/visualize_topic/heat_map.png")
 
 def gen_visualize_documents(topic_model,docs_dl):
     fig=topic_model.visualize_documents(docs_dl,
@@ -122,9 +146,10 @@ def gen_visualize_documents(topic_model,docs_dl):
 
 
 if __name__=="__main__":
-    topic_model,docs_dl=model_train()
-    representative_docs_gen(topic_model)
+    topic_model,docs_dl,representative_docs=model_train()
+    #csv_gen(topic_model)
+    #representative_docs_gen(topic_model,representative_docs)
     
     #gen_heatmap(topic_model)
-    #gen_visualize_documents(topic_model,docs_dl)
+    gen_visualize_documents(topic_model,docs_dl)
 
