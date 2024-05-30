@@ -12,6 +12,7 @@ import requests
 from tqdm import tqdm
 import re
 import fnmatch
+import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 #VENUE = "International Conference on Machine Learning"
@@ -79,20 +80,15 @@ def getLinks():
 
 
 def telecharger_et_traiter_subsets(liens):
+
     # Dossier de destination pour sauvegarder les fichiers téléchargés
     dossier_destination = "datasets"
 
-    # Utiliser ThreadPoolExecutor pour traiter les téléchargements en parallèle
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        futures = [
-            executor.submit(telecharger_et_traiter_subset, lien, dossier_destination, i)
-            for i, lien in enumerate(liens, start=1)
-        ]
-        for future in as_completed(futures):
-            future.result()  # Récupérer le résultat pour lever les exceptions éventuelles
-
-    print("Tous les subsets ont été téléchargés et traités.")
-    return
+    # Itérer sur chaque lien
+    for i, lien in enumerate(liens, start=1):
+        print(f"Téléchargement et traitement du subset {i}/{len(liens)}...")
+        filtered_database = telecharger_et_traiter_subset(lien, dossier_destination, i)
+    return filtered_database
 
 
 def telecharger_et_traiter_subset(lien, dossier_destination, index):
@@ -162,7 +158,7 @@ def traiter_subset(chemin_archive):
 
     # Écrire les lignes filtrées dans un fichier JSON
     #chemin_fichier_filtre = f"database_{venue_initials}_{YEARS[0]}-{YEARS[-1]}.json"
-    chemin_fichier_filtre = "database_ICML_2018-2022.json"
+    chemin_fichier_filtre = "database_NEURIPS_2018-2022.json"
     with open(chemin_fichier_filtre, "a") as fichier_filtre:
         for ligne in lignes_filtrees:
             json.dump(ligne, fichier_filtre)
@@ -178,21 +174,17 @@ def traiter_subset(chemin_archive):
 def est_valide(ligne_json):
     # Vérifier si la ligne satisfait les critères
     return (
-        ligne_json.get("venue", "") in [
-        "International Conference on Machine Learning"
-        ]
+        ligne_json.get("venue", "").lower().find("neurips") != -1
         and
         ligne_json.get("year", "") in YEARS
     )
 
 
 def clean_filename(filename):
-    # Supprimer les caractères non valides pour un nom de fichier sur Windows
-    return re.sub(r'[\\/:"*?<>|]', "", filename)
-
+    # Fonction pour nettoyer les noms de fichiers
+    return "".join(c for c in filename if c.isalnum() or c in (' ', '_', '-')).rstrip()
 
 def download_papers_from_json(json_file_path):
-
     # Création des dossiers s'ils n'existent pas
     pdf_folder_path = "PDF"
     latex_folder_path = "LaTeX"
@@ -214,16 +206,21 @@ def download_papers_from_json(json_file_path):
             try:
                 paper_data = json.loads(line)
                 arxiv_id = paper_data["externalids"]["ArXiv"]
+                year = paper_data["year"]
                 paper_title = paper_data["title"]
 
                 print(f"[{index}/{total_lines}] ", end="")
 
+                # Vérifier l'année du papier
+                if year not in [2018, 2019]:
+                    print(f"Année non conforme (2018 ou 2019 requise) : {paper_title}")
+                    total_papers -= 1
+                    continue
+
                 # Vérifier si le fichier a déjà été téléchargé
                 cleaned_title = clean_filename(paper_title)
                 pdf_file_path = os.path.join(pdf_folder_path, f"{cleaned_title}.pdf")
-                latex_file_path = os.path.join(
-                    latex_folder_path, f"{cleaned_title}.tar.gz"
-                )
+                latex_file_path = os.path.join(latex_folder_path, f"{cleaned_title}.tar.gz")
                 if os.path.exists(pdf_file_path) and os.path.exists(latex_file_path):
                     print(f"Le fichier existe déjà : {paper_title}")
                     continue
@@ -238,9 +235,7 @@ def download_papers_from_json(json_file_path):
                     if pdf_response.status_code == 200:
                         # Nettoyage du nom de fichier
                         cleaned_title = clean_filename(paper_title)
-                        pdf_file_path = os.path.join(
-                            pdf_folder_path, f"{cleaned_title}.pdf"
-                        )
+                        pdf_file_path = os.path.join(pdf_folder_path, f"{cleaned_title}.pdf")
                         with open(pdf_file_path, "wb") as pdf_file:
                             pdf_file.write(pdf_response.content)
                         print(f"Téléchargement réussi : {paper_title} (PDF)")
@@ -254,9 +249,7 @@ def download_papers_from_json(json_file_path):
                     if latex_response.status_code == 200:
                         # Nettoyage du nom de fichier
                         cleaned_title = clean_filename(paper_title)
-                        latex_file_path = os.path.join(
-                            latex_folder_path, f"{cleaned_title}.tar.gz"
-                        )
+                        latex_file_path = os.path.join(latex_folder_path, f"{cleaned_title}.tar.gz")
                         with open(latex_file_path, "wb") as latex_file:
                             latex_file.write(latex_response.content)
                         print(f"Téléchargement réussi : {paper_title} (LaTeX)")
@@ -264,17 +257,12 @@ def download_papers_from_json(json_file_path):
                         print(f"Échec du téléchargement : {paper_title} (LaTeX)")
                 else:
                     print(f"Pas de lien ArXiv disponible pour : {paper_title}")
-                    total_papers -= (
-                        1  # Décrémenter le nombre total de papiers à télécharger
-                    )
+                    total_papers -= 1  # Décrémenter le nombre total de papiers à télécharger
             except json.JSONDecodeError:
                 print(f"Erreur de décodage JSON sur la ligne {index}: {line}")
 
     # Affichage du nombre total de papiers téléchargés
-    print(
-        f"Nombre total de papiers téléchargés : {downloaded_papers} sur {total_papers}"
-    )
-
+    print(f"Nombre total de papiers téléchargés : {downloaded_papers} sur {total_papers}")
 
 def format_json_file(input_file):
     output_file = "formatted_output.json"
@@ -299,10 +287,10 @@ def format_json_file(input_file):
 def main():
     # Télecharger les liens de la last_release
     links = getLinks()
-    # On télécharge les papiers icml 2018-2022
-    database = telecharger_et_traiter_subsets(links)
+    # On télécharge les papiers neurips 2018-2022
+    #telecharger_et_traiter_subsets(links)
     # La fonction en dessous créer deux dossiers : "PDF" et "LaTeX", qui vont contenir après téléchargement tout les papiers du .json et qui sont bien référencés sur ArXiv
-    download_papers_from_json(database)
+    download_papers_from_json("database_ICML_2018-2022.json")
     '''
     for file in os.listdir('.'):
         if fnmatch.fnmatch(file, 'database_*.json'):
