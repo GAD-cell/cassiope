@@ -12,6 +12,7 @@ import requests
 from tqdm import tqdm
 import re
 import fnmatch
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 #VENUE = "International Conference on Machine Learning"
 YEARS = [
@@ -20,7 +21,6 @@ YEARS = [
     2020, 
     2021, 
     2022,
-    2023
 ]
 
 #venue_initials = "".join([word[0] for word in VENUE.split() if word[0].isupper()]).upper() # "ICML" pour International Conference on Machine Learning, etc...
@@ -79,15 +79,20 @@ def getLinks():
 
 
 def telecharger_et_traiter_subsets(liens):
-
     # Dossier de destination pour sauvegarder les fichiers téléchargés
     dossier_destination = "datasets"
 
-    # Itérer sur chaque lien
-    for i, lien in enumerate(liens, start=1):
-        print(f"Téléchargement et traitement du subset {i}/{len(liens)}...")
-        filtered_database = telecharger_et_traiter_subset(lien, dossier_destination, i)
-    return filtered_database
+    # Utiliser ThreadPoolExecutor pour traiter les téléchargements en parallèle
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [
+            executor.submit(telecharger_et_traiter_subset, lien, dossier_destination, i)
+            for i, lien in enumerate(liens, start=1)
+        ]
+        for future in as_completed(futures):
+            future.result()  # Récupérer le résultat pour lever les exceptions éventuelles
+
+    print("Tous les subsets ont été téléchargés et traités.")
+    return
 
 
 def telecharger_et_traiter_subset(lien, dossier_destination, index):
@@ -157,7 +162,7 @@ def traiter_subset(chemin_archive):
 
     # Écrire les lignes filtrées dans un fichier JSON
     #chemin_fichier_filtre = f"database_{venue_initials}_{YEARS[0]}-{YEARS[-1]}.json"
-    chemin_fichier_filtre = "database_ICML_ICCV_2018-2023.json"
+    chemin_fichier_filtre = "database_ICML_2018-2022.json"
     with open(chemin_fichier_filtre, "a") as fichier_filtre:
         for ligne in lignes_filtrees:
             json.dump(ligne, fichier_filtre)
@@ -174,8 +179,7 @@ def est_valide(ligne_json):
     # Vérifier si la ligne satisfait les critères
     return (
         ligne_json.get("venue", "") in [
-        "International Conference on Machine Learning",
-        "International Conference on Computer Vision"
+        "International Conference on Machine Learning"
         ]
         and
         ligne_json.get("year", "") in YEARS
@@ -295,7 +299,7 @@ def format_json_file(input_file):
 def main():
     # Télecharger les liens de la last_release
     links = getLinks()
-    # On télécharge les papiers icml + iccv 2018-2023
+    # On télécharge les papiers icml 2018-2022
     database = telecharger_et_traiter_subsets(links)
     # La fonction en dessous créer deux dossiers : "PDF" et "LaTeX", qui vont contenir après téléchargement tout les papiers du .json et qui sont bien référencés sur ArXiv
     download_papers_from_json(database)
