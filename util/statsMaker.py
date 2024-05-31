@@ -155,6 +155,10 @@ def get_stats(titles, process_id=0):
                 f"downloadPapers/LaTeX/{title}.tar.gz"
             )
 
+            filtered_semantic_scholar_data = getSemanticScholarData(title)
+            if not filtered_semantic_scholar_data:
+                continue
+
             # Unzip the LaTeX project to a temporary directory
             with tempfile.TemporaryDirectory() as tempdir:
                 try:
@@ -182,7 +186,6 @@ def get_stats(titles, process_id=0):
                     )
                     continue
 
-            filtered_semantic_scholar_data = getSemanticScholarData(title)
             both_stats = filtered_semantic_scholar_data | paper_stats
 
             result[index] = both_stats
