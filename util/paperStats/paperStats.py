@@ -27,7 +27,7 @@ import argparse
 import fitz
 import json
 # import language_tool_python
-#import pypandoc
+# import pypandoc
 import os
 import re
 
@@ -36,7 +36,7 @@ import re
 
 # sys.path.append(os.path.join(os.path.dirname(__file__), "..", "topicModeling"))
 
-#import topicModeling
+# import topicModeling
 
 """ tool = language_tool_python.LanguageTool(
     "en-US", config={"cacheSize": 1000, "pipelineCaching": True}
@@ -145,23 +145,19 @@ def get_number_pages(doc):
 
 
 def get_number_words(doc):
-    words = []
-    for page in doc:
-        words += page.get_text("text").split()
+    words = [word for page in doc for word in page.get_text("text").split()]
     return len(words)
 
 
 def get_font(doc):
     try:
-        fonts = []
+        font_counter = Counter()
         for page in doc:
-            fonts += page.get_fonts()
+            for font in page.get_fonts():
+                font_counter[font[3]] += 1
 
-        # Get the most common font
-        most_common_font = Counter(fonts).most_common(1)[0][0][3]
+        most_common_font = font_counter.most_common(1)[0][0]
 
-        # Font string format is like AECCXO+NimbusRomNo9L-Regu
-        # We want to extract the font family
         return most_common_font.split("+")[1].split("-")[0]
     except:
         return "Unknown"
