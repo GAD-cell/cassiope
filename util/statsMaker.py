@@ -40,7 +40,7 @@ import re
 import tarfile
 import tempfile
 
-databases_path = "downloadPapers/"
+databases_path = "downloadPapers"
 databases = [
     "filtered_database_2020_2021_2022.json",
     "database_ICCV_2021-2022.json",
@@ -52,24 +52,26 @@ output = "paperStats/STATS.csv"
 
 papers = {}
 
+
+# Methode utilisée par downloadPapers pour nettoyer les noms de fichiers. On l'utilise ici pour retrouver les fichiers à traiter.
+def clean_filename(filename):
+    # Fonction pour nettoyer les noms de fichiers
+    return "".join(c for c in filename if c.isalnum() or c in (' ', '_', '-')).rstrip()
+
+
 def prepare_papers():
     # Fill papers with a dict like {cleaned_title: {paper data}}
     for database in databases:
-        with open(databases_path + database, "r") as f:
-            for line in f.readlines():
+        with open(os.path.join(databases_path, database), "r") as f:
+            for line in f:
                 entry = json.loads(line)
                 cleaned_entry = clean_filename(entry["title"])
                 papers[cleaned_entry] = entry
 
-# Methode utilisée par downloadPapers pour nettoyer les noms de fichiers. On l'utilise ici pour retrouver les fichiers à traiter.
-def clean_filename(filename):
-    # Supprimer les caractères non valides pour un nom de fichier sur Windows
-    return re.sub(r'[\\/:"*?<>|]', "", filename)
-
 # Retrouve les données d'un papier dans la base de données à partir de son titre
 def getSemanticScholarData(title):
 
-    entry = papers.get(clean_filename(title), None)
+    entry = papers.get(clean_filename(title))
 
     if entry is None:
         print(f"{colorama.Fore.RED}Papier non trouvé dans `papers` : {title}{colorama.Style.RESET_ALL}")
@@ -207,6 +209,7 @@ def write_csv(stats):
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
+
         for index, paper in stats.items():
             writer.writerow(paper)
 
