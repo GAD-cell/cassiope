@@ -40,8 +40,26 @@ import re
 import tarfile
 import tempfile
 
-database = "downloadPapers/filtered_database_2020_2021_2022.json"
+databases_path = "downloadPapers/"
+databases = [
+    "filtered_database_2020_2021_2022.json",
+    "database_ICCV_2021-2022.json",
+    "database_ICML_2018_2019.json",
+    "database_ICML_2018-2022.json",
+    "database_ICML_2019-2020.json",
+]
 output = "paperStats/STATS.csv"
+
+papers = {}
+
+def prepare_papers():
+    # Fill papers with a dict like {cleaned_title: {paper data}}
+    for database in databases:
+        with open(databases_path + database, "r") as f:
+            for line in f.readlines():
+                entry = json.loads(line)
+                cleaned_entry = clean_filename(entry["title"])
+                papers[cleaned_entry] = entry
 
 # Methode utilisée par downloadPapers pour nettoyer les noms de fichiers. On l'utilise ici pour retrouver les fichiers à traiter.
 def clean_filename(filename):
@@ -51,21 +69,11 @@ def clean_filename(filename):
 # Retrouve les données d'un papier dans la base de données à partir de son titre
 def getSemanticScholarData(title):
 
-    # Each line is a json object
-    lines = []
+    entry = papers.get(clean_filename(title), None)
 
-    with open(database, "r") as f:
-        lines += f.readlines()
-
-    # Look for paper with title 'title' in the database
-    for line in lines:
-        entry = json.loads(line)
-        cleaned_entry = clean_filename(entry["title"])
-        if cleaned_entry == title:
-            break
-    else:
-        raise ValueError(f"Paper not found in database : {title}")
-    
+    if entry is None:
+        print(f"{colorama.Fore.RED}Papier non trouvé dans `papers` : {title}{colorama.Style.RESET_ALL}")
+        return {}
 
     return {
         "corpusid": entry["corpusid"],
@@ -203,4 +211,5 @@ def write_csv(stats):
             writer.writerow(paper)
 
 if __name__ == "__main__":
+    prepare_papers()
     write_csv(get_all_stats())
