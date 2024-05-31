@@ -149,6 +149,7 @@ def get_number_words(doc):
     return len(words)
 
 
+
 def get_font(doc):
     try:
         font_counter = Counter()
@@ -238,6 +239,13 @@ def get_subsections(latex):
 def get_subsubsections(latex):
     return get_number_occurences(latex, [r"\\subsubsection"])
 
+def get_abstract_length(latex):
+    abstract_match = re.search(r'\\begin{abstract}(.*?)\\end{abstract}', latex, re.DOTALL)
+    if abstract_match:
+        abstract = abstract_match.group(1).strip()
+        return len(abstract)
+    else:
+        return 0
 
 """ def get_grammar_errors(latex_dir):
 
@@ -267,6 +275,8 @@ def get_subsubsections(latex):
     return topicModeling.topicModeling(doc)[0] """
 
 
+
+
 def paperStats(pdf_path, latex_dir):
 
     pdf = fitz.open(pdf_path)
@@ -286,6 +296,7 @@ def paperStats(pdf_path, latex_dir):
         "subsubsections": get_subsubsections(latex),
         "tables": get_tables(latex),
         "words": get_number_words(pdf),
+        "abstract_length": get_abstract_length(latex),
         #"topic1": topic1,
         # "topic2": topic2,
         # "topic3": topic3,
