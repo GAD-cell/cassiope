@@ -15,8 +15,20 @@ const Main = () => {
 
   return (
     <div className=''>
-      <h1>Main</h1>
+        <form action="/paper-stats" method="post" encType="multipart/form-data" className='mx-auto max-w-sm'>
 
+          <div className='mb-4'>
+            <label htmlFor='pdf'>PDF</label>
+            <input type="file" name="pdf" />
+          </div>
+
+          <div className='mb-5'>
+            <label htmlFor='latex_zip'>LaTeX Zipped project</label>
+            <input type="file" name="latex_zip" />
+          </div>
+
+          <input type="submit" value="Upload" />
+        </form>   
       <p>Time: {time}</p>
     </div>
   )

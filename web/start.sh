@@ -14,7 +14,7 @@
     trap _catch ERR
     trap _finally EXIT
     (trap 'kill 0' SIGINT;
-        cd backend && flask run --port=5001 &
+        cd ../util && flask run --port=5001 &
         cd frontend && npm start
     )
 )
