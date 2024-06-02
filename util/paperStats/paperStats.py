@@ -107,8 +107,6 @@ def parse_latex(latex_dir):
                 if ".tex" in line:
                     included_tex_files.append(line.split("{")[1].split("}")[0])
 
-    # print(f"Included tex files: {included_tex_files}")
-
     # Read the main tex file and all the included tex files
     with open(main_tex, "r") as f:
         try:
@@ -132,7 +130,7 @@ def parse_latex(latex_dir):
     return latex
 
 
-# Util : get the number of occurences of regex matches in a string, among an array of regexes
+# Util : get the number of occurrences of regex matches in a string, among an array of regexes
 def get_number_occurences(string, regexes):
     count = 0
     for regex in regexes:
@@ -238,6 +236,13 @@ def get_subsections(latex):
 def get_subsubsections(latex):
     return get_number_occurences(latex, [r"\\subsubsection"])
 
+def get_abstract_length(latex):
+    abstract_match = re.search(r'\\begin{abstract}(.*?)\\end{abstract}', latex, re.DOTALL)
+    if abstract_match:
+        abstract = abstract_match.group(1).strip()
+        return len(abstract.split(" "))
+    else:
+        return 0
 
 """ def get_grammar_errors(latex_dir):
 
@@ -286,6 +291,7 @@ def paperStats(pdf_path, latex_dir):
         "subsubsections": get_subsubsections(latex),
         "tables": get_tables(latex),
         "words": get_number_words(pdf),
+        "abstract_length": get_abstract_length(latex),
         #"topic1": topic1,
         # "topic2": topic2,
         # "topic3": topic3,

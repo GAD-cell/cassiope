@@ -42,13 +42,9 @@ import tempfile
 
 databases_path = "downloadPapers"
 databases = [
-    "filtered_database_2020_2021_2022.json",
-    "database_ICCV_2021-2022.json",
-    "database_ICML_2018_2019.json",
-    "database_ICML_2018-2022.json",
-    "database_ICML_2019-2020.json",
+    "database_ICML_2018-2022.json"
 ]
-output = "paperStats/STATS.csv"
+output = "paperStats/STATS_2018-2022.csv"
 
 papers = {}
 
