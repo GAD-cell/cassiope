@@ -7,4 +7,3 @@ Cette application web permet d'entrer un PDF et ses sources LaTeX et d'obtenir d
 ```bash
 ./start.sh
 ```
-
