@@ -15,10 +15,14 @@ import numpy as np
 # Télécharger les stopwords de nltk si ce n'est pas déjà fait
 nltk.download('stopwords')
 
-pdf_folder = '/home/gad/Documents/PDF'
+pdf_folder = '/media/gad/A4F3-B9AE/PDF2'
 
 def docsMaker(pdf_folder):
+
     docs=[]
+    if os.path.exists("docs_dl.txt"):
+        with open("docs_dl.txt", "rb") as fp:   # Unpickling
+            docs = pickle.load(fp)
     # Parcourt tous les fichiers et dossiers dans le dossier donné
     pdfs=os.listdir(pdf_folder)
     count=0
@@ -146,10 +150,10 @@ def gen_visualize_documents(topic_model,docs_dl):
 
 
 if __name__=="__main__":
+    #docsMaker(pdf_folder)
     topic_model,docs_dl,representative_docs=model_train()
-    #csv_gen(topic_model)
-    #representative_docs_gen(topic_model,representative_docs)
+    csv_gen(topic_model)
+    representative_docs_gen(topic_model,representative_docs)
     
     #gen_heatmap(topic_model)
-    gen_visualize_documents(topic_model,docs_dl)
-
+    #gen_visualize_documents(topic_model,docs_dl)
