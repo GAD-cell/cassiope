@@ -3,18 +3,30 @@ import ReactSlider from 'react-slider'
 
 const GradeSlider = (props:any) => {
 
+  // Bounds for the slider
+  // "property" : [min, max, min_good, max_good]
+  const BOUNDS : {[key: string]: number[]} = {
+    "abstract_length":    [0, 400, 150, 250],
+    "content_references": [0, 500, 35, 95],
+    "equations":          [0, 800, 25, 105],
+    "figures":            [0, 400, 5, 45],
+    "font":               [],
+    "pages":              [3, 143, 15, 25],
+    "paragraphs":         [0, 100, 5, 15],
+    "sections":           [0, 20, 5, 9],
+    "subsections":        [0, 60, 4, 12],
+    "subsubsections":     [0, 50, 20, 30],
+    "tables":             [0, 80, 3, 10],
+    "words":              [0, 50000, 9000, 13000]
+  }
+
   const property = props.property
   const value = props.value
 
   // If value is not a number, return null
   if (typeof value !== 'number') return null
 
-  const min = 0
-  const max = 100
-
-  // Range of good values
-  const min_good = 20 + Math.random() * (25)
-  const max_good = 50 + Math.random() * (25)
+  const [min, max, min_good, max_good] = BOUNDS[property]
 
   // Generate a table of good values : one by one, from min_good to max_good
   const good_marks = Array.from({ length: max_good - min_good + 1 }, (_, i) => min_good + i)
@@ -31,13 +43,13 @@ const GradeSlider = (props:any) => {
     <div>
       <ReactSlider
         className='w-64 h-4'
-        thumbClassName={`w-3 h-3 mt-0.5 ${isGood ? "bg-green-600" : "bg-gray-500"} rounded-full`}
-        trackClassName='h-4 bg-gray-100 rounded-full border'
+        thumbClassName={`w-4 h-4 border-4 ${isGood ? "bg-green-600 border-green-300" : "bg-gray-500"} rounded-full`}
+        trackClassName='h-2 mt-1 bg-gray-200 rounded-full'
         defaultValue={value}
         min={min}
         max={max}
         marks={good_marks}
-        markClassName={`h-4 bg-green-200 w-1`}
+        markClassName={`h-2 mt-1 bg-green-300 w-3`}
         disabled
       />
     </div>
