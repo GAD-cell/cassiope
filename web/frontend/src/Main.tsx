@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 
-import Container from './Container'
-import React from 'react'
 import StatsDisplay from './StatsDisplay'
 import UploadForm from './UploadForm'
 
@@ -36,7 +34,7 @@ const Main = () => {
     <>
         <UploadForm pdf={pdf} setPdf={setPdf} setLatexZip={setLatexZip} latexZip={latexZip} handleSubmit={handleSubmit} />
         <StatsDisplay {...paperStats} />
-      <p>Time: {time}</p>
+      <p className='mt-4 text-xs text-gray-400'>Time: {time}</p>
     </>
   )
 }
