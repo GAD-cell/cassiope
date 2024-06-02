@@ -10,7 +10,10 @@ const UploadForm = (props: any) => {
     const handleSubmit = props.handleSubmit
 
     const canUpload = useMemo(() => {
-        return pdf && latexZip
+        const pdf_is_a_pdf_file = pdf && pdf.name.endsWith('.pdf');
+        const latex_zip_is_a_zip_file = latexZip && latexZip.name.endsWith('.zip');
+        return pdf_is_a_pdf_file && latex_zip_is_a_zip_file
+
     }, [pdf, latexZip])
 
     console.log(pdf, latexZip, canUpload)
@@ -19,13 +22,15 @@ const UploadForm = (props: any) => {
         <form method="post" encType="multipart/form-data" className='mx-auto max-w-lg'>
 
             <div className='mb-4'>
-                <label htmlFor='pdf' className="block mb-2 text-sm">PDF</label>
+                <label htmlFor='pdf' className="block text-md font-semibold">PDF</label>
+                <label htmlFor='pdf' className="block mb-2 text-sm text-gray-500">Your paper in .pdf format</label>
                 <input type="file" name="pdf"
                     onChange={(e) => { setPdf(e.target.files![0]) }} />
             </div>
 
             <div className='mb-4'>
-                <label htmlFor='latex_zip' className="block mb-2 text-sm">LaTeX Zipped project</label>
+                <label htmlFor='latex_zip' className="block text-md font-semibold">LaTeX</label>
+                <label htmlFor='latex_zip' className="block mb-2 text-sm text-gray-500">The entire LaTeX projet for this paper, in a .zip archive</label>
                 <input type="file" name="latex_zip"
                     onChange={(e) => { setLatexZip(e.target.files![0]) }}
                 />
