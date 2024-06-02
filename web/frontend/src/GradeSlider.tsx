@@ -8,8 +8,8 @@ const GradeSlider = (props:any) => {
   const BOUNDS : {[key: string]: number[]} = {
     "abstract_length":    [0, 400, 150, 250],
     "content_references": [0, 500, 35, 95],
-    "equations":          [0, 800, 25, 105],
-    "figures":            [0, 400, 5, 45],
+    "equations":          [0, 400, 25, 105],
+    "figures":            [0, 150, 5, 35],
     "font":               [],
     "pages":              [3, 143, 15, 25],
     "paragraphs":         [0, 100, 5, 15],
@@ -17,7 +17,7 @@ const GradeSlider = (props:any) => {
     "subsections":        [0, 60, 4, 12],
     "subsubsections":     [0, 50, 20, 30],
     "tables":             [0, 80, 3, 10],
-    "words":              [0, 50000, 9000, 13000]
+    "words":              [0, 30000, 9000, 13000]
   }
 
   const property = props.property
@@ -42,7 +42,7 @@ const GradeSlider = (props:any) => {
   return (
     <div>
       <ReactSlider
-        className='w-64 h-4'
+        className='w-52 h-4'
         thumbClassName={`w-4 h-4 border-4 ${isGood ? "bg-green-600 border-green-300" : "bg-gray-500"} rounded-full`}
         trackClassName='h-2 mt-1 bg-gray-200 rounded-full'
         defaultValue={value}

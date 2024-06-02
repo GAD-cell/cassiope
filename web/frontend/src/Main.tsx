@@ -40,13 +40,13 @@ const Main = () => {
   }
 
   return (
-    <div className='bg-white p-4 rounded-xl'>
-      <h1 className='text-xl font-semibold flex items-center gap-2 mb-2 bg-blue-0 px-2 py-2 text-blue-700'>
+    <div className='bg-white p-6 rounded-xl'>
+      <h1 className='text-xl font-semibold flex items-center gap-2 mb-2 bg-blue-0 pb-2 text-blue-700 border-b border-blue-200'>
         <PresentationChartBarIcon className='w-5 h-5' />
         Paper Analyzer
       </h1>
       
-      <p className='text-sm text-blue-500 mb-4 px-1'>Feed this tool your paper and learn how you can make it more likely to be published, based on experience.</p>
+      <p className='text-sm text-blue-500 mb-4'>Feed this tool your paper and learn how you can make it more likely to be published, based on experience.</p>
 
       <UploadForm pdf={pdf} setPdf={setPdf} setLatexZip={setLatexZip} latexZip={latexZip} handleSubmit={handleSubmit} />
       {loading ? <p className='text-center mt-4'>Loading...</p> :
