@@ -1,9 +1,9 @@
-import time
-from flask import Flask, request
-import tempfile
-import zipfile
-
 from .paperStats import paperStats
+from flask import Flask, request
+import os
+import tempfile
+import time
+import zipfile
 
 app = Flask(__name__)
 
@@ -14,21 +14,27 @@ def get_current_time():
 
 @app.route("/paper-stats", methods=["POST"])
 def get_paper_stats():
-    pdf = request.files["pdf"]
-    latex_zip = request.files["latex"]
 
-    with tempfile.TemporaryDirectory() as tempdir:
-        # PDF : single file
-        # LaTeX : directory unzipped from latex_zip
+    try:
 
-        pdf_path = f"{tempdir}/paper.pdf"
-        latex_path = f"{tempdir}/latex"
+        pdf = request.files["pdf"]
+        latex_zip = request.files["latex_zip"]
 
-        pdf.save(pdf_path)
+        with tempfile.TemporaryDirectory() as tempdir:
+            # PDF : single file
+            # LaTeX : directory unzipped from latex_zip
 
-        with zipfile.ZipFile(latex_zip, "r") as zip_ref:
-            zip_ref.extractall(latex_path)
+            pdf_path = f"{tempdir}/paper.pdf"
+            latex_path = f"{tempdir}/latex"
 
-        STATS = paperStats(pdf_path, latex_path)
+            pdf.save(pdf_path)
 
-    return STATS
+            with zipfile.ZipFile(latex_zip, "r") as zip_ref:
+                zip_ref.extractall(latex_path)
+
+            STATS = paperStats.paperStats(pdf_path, latex_path)
+
+        return STATS
+    
+    except Exception as e:
+        raise e

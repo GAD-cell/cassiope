@@ -2,7 +2,7 @@ import React from 'react'
 
 const Container = (props:any) => {
   return (
-    <div className='mx-auto px-12 py-6'>
+    <div className='mx-auto py-6 max-w-lg'>
         {props.children}
     </div>
   )
