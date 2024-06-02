@@ -10,8 +10,19 @@ import seaborn as sns
 import csv
 import ast
 
+
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.metrics import mean_squared_error
+
+
 def read_csv(fileName):
     data = pd.read_csv(fileName)
+    del data['filename']
     del data['title']
     del data['arxiv_id']
     del data['corpusid']
@@ -19,8 +30,10 @@ def read_csv(fileName):
     del data['font']
     del data["influentialcitationcount"]
     del data['year']
+    del data['authors']
     citationcount=data["citationcount"]
     del data["citationcount"]
+    
     return data,citationcount
 
 def make_df(X,y):
@@ -94,12 +107,118 @@ def gen_citationcount_per_topic():
     bertopic_df.to_csv('/home/gad/Documents/cassiope/cassiope/util/paperStats/STATS_topic.csv', index=False)
     return citationcount_per_topic
 
+
+def gen_regressor_model():
+
+
+    data,citationcount = read_csv('/home/gad/Documents/cassiope/cassiope/util/paperStats/STATS.csv')
+    data['citationcount']=citationcount
+
+
+    #stat sur les 10% meilleurs papiers en terme de citation
+
+    statistiques = data.describe().transpose()
+    print(statistiques)
+
+
+    features = data.columns.tolist()
+    target = 'citationcount'  # Remplacer par le nom de votre variable cible
+
+
+    regression_results = {}
+
+    for feature in features:
+
+        if feature != target:
+            X = data[[feature]]
+            y = data[target]
+            
+
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+            
+
+            pipeline = Pipeline([
+                ('poly', PolynomialFeatures()),
+                ('model', LinearRegression())
+            ])
+            
+            param_grid = [
+                {
+                    'poly__degree': [1],  # Linear
+                    'model': [LinearRegression()]
+                },
+                {
+                    'poly__degree': [2, 3],  # Polynomial
+                    'model': [LinearRegression()]
+                },
+                {
+                    'poly': [PolynomialFeatures(degree=1)],  # Gaussian Process Regressor
+                    'model': [GaussianProcessRegressor()]
+                }
+            ]
+            
+            # test sur l'ensemble des modèles de régression
+            grid_search = GridSearchCV(pipeline, param_grid, cv=5, scoring='neg_mean_squared_error')
+            grid_search.fit(X_train, y_train)
+            
+            # Meilleur modèle et prédictions
+            best_model = grid_search.best_estimator_
+            y_pred = best_model.predict(X_test)
+            
+            
+            rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+            
+            # Stockage résultat
+            regression_results[feature] = {
+                'best_model': best_model,
+                'rmse': rmse,
+                'best_params': grid_search.best_params_
+            }
+
+    for feature, result in regression_results.items():
+        print(f"Feature: {feature}")
+        print(f"  Best Model: {result['best_model']}")
+        print(f"  RMSE: {result['rmse']}")
+        print(f"  Best Parameters: {result['best_params']}")
+        print()
+
+
+    return regression_results
+
+def citationcount_predict():
+    regression_results = gen_regressor_model()
+
+    new_data = pd.read_csv('/home/gad/Documents/cassiope/cassiope/util/paperStats/STATS_1.csv')
+    intermediate_predictions = pd.DataFrame()
+
+    for feature, result in regression_results.items():
+        best_model = result['best_model']
+        
+
+        X_new = new_data[[feature]]
+        
+
+        y_pred = best_model.predict(X_new)
+        
+        intermediate_predictions[feature] = y_pred
+
+
+    final_predictions = intermediate_predictions.mean(axis=1)
+    final_predictions=floor(float(final_predictions.item()))
+    print('prediction :' +str(final_predictions))
+    return final_predictions
+
 if __name__=="__main__":
     #data,citationcount = read_csv("../STATS.csv")
     #plot('content_references','citationcount',data)
     #df = make_df(data,citationcount)
     #visualize_features(df)
+    
     #randomForest(data,citationcount,df)
     #linear_regression(data,citationcount)
     #correlation_matrix(df)
-    gen_citationcount_per_topic()
+    
+    #gen_citationcount_per_topic()
+
+    #gen_regressor_model()
+    citationcount_predict()
