@@ -7,6 +7,7 @@ const GradeSlider = (props:any) => {
   // "property" : [min, max, min_good, max_good]
   const BOUNDS : {[key: string]: number[]} = {
     "abstract_length":    [0, 400, 150, 250],
+    
     "content_references": [0, 500, 35, 95],
     "equations":          [0, 400, 25, 105],
     "figures":            [0, 150, 5, 35],
@@ -26,7 +27,7 @@ const GradeSlider = (props:any) => {
   // If value is not a number, return null
   if (typeof value !== 'number') return null
 
-  const [min, max, min_good, max_good] = BOUNDS[property]
+  const [min, max, min_good, max_good] = BOUNDS[property] ?? [0, 1000, 250, 750]
 
   // Generate a table of good values : one by one, from min_good to max_good
   const good_marks = () => Array.from({ length: max_good - min_good + 1 }, (_, i) => min_good + i)
