@@ -47,8 +47,13 @@ def get_pdf_list_dir():
 
 def hash_maker():
     hashmap = {}
-    pdfs = os.listdir(pdf_folder)
+    with open("pdf_list_dir.txt", "rb") as fp:  # Unpickling
+        pdfs= pickle.load(fp)
+
+    #si pas le .txt
+    #pdfs = os.listdir(pdf_folder)
     pdfs = remove_pdf_suffix(pdfs)
+    
     with open("docs_dl.txt", "rb") as fp:  # Unpickling
         docs_dl = pickle.load(fp)
     fichier = 0
@@ -107,14 +112,12 @@ def model_train():
     custom_stopwords = set(stopwords.words("english"))
     custom_stopwords.update(["al", "et", "et al"])
     custom_stopwords = list(custom_stopwords)
-
+    
     print("DIRNAME")
     print(os.path.dirname(__file__))
 
     if not os.path.exists(os.path.join(os.path.dirname(__file__), "DF_bertopic.txt")):
-        with open(
-            os.path.join(os.path.dirname(__file__), "docs_dl.txt"), "rb"
-        ) as fp:  # Unpickling
+        with open("docs_dl.txt", "rb") as fp:  # Unpickling
             docs_dl = pickle.load(fp)
         vectorizer_model = CountVectorizer(stop_words=custom_stopwords)
         topic_model = BERTopic(vectorizer_model=vectorizer_model)
@@ -143,7 +146,7 @@ def model_train():
         with open(os.path.join(os.path.dirname(__file__), "Representative_topic.txt"), "rb") as fp:
             representative_docs = pickle.load(fp)
 
-    return topic_model, docs_dl, representative_docs
+    return topic_model, representative_docs
 
 
 def csv_gen(topic_model):
@@ -161,13 +164,14 @@ def gen_heatmap(topic_model):
     )
 
 
-def gen_visualize_documents(topic_model, docs_dl):
-    # fig=topic_model.visualize_documents(docs_dl,
-    # sample=0.01,
-    # )
-    fig = topic_model.visualize_topics()
-    html_str = pio.to_html(fig)
-    print(html_str)
+def gen_visualize_documents(topic_model):
+
+    with open("docs_dl.txt", "rb") as fp:  # Unpickling
+        docs_dl = pickle.load(fp)
+    fig = topic_model.visualize_documents(docs_dl,
+                                          topics=list(range(30)),
+                                          height=600)
+    # pio.write_image(fig, "visualize_topic/output.png", engine="kaleido")
     fig.show()
 
 
@@ -218,11 +222,10 @@ def get_doc_topic(file_path):
 
 if __name__ == "__main__":
     # docsMaker(pdf_folder)
-    topic_model, docs_dl, representative_docs = model_train()
-    csv_gen(topic_model)
-    representative_docs_gen(topic_model, representative_docs)
+    topic_model, representative_docs = model_train()
+    #csv_gen(topic_model)
+    #representative_docs_gen(topic_model,representative_docs)
 
     # gen_heatmap(topic_model)
-    gen_visualize_documents(topic_model, docs_dl)
+    #gen_visualize_documents(topic_model,docs_dl)
 
-    # get_doc_topic('/home/gad/Documents/PDF/3D Infomax improves GNNs for Molecular Property Prediction.pdf')
