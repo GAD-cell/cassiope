@@ -75,7 +75,7 @@ def representative_docs_gen(topic_model,representative_docs):
     with open(input_file, mode='r', newline='') as infile, open(output_file, mode='w', newline='') as outfile:
         reader = csv.reader(infile)
         writer = csv.writer(outfile)
-        header = next(reader) 
+        header = next(reader)
         writer.writerow(header)
         for i, row in enumerate(reader):
             if i < len(docs):
@@ -123,7 +123,7 @@ def model_train():
             topic_model=pickle.load(fp) 
         with open("Representative_topic.txt","rb") as fp:
             representative_docs=pickle.load(fp) 
-    
+
     return topic_model,docs_dl,representative_docs
 
 
@@ -150,10 +150,10 @@ def gen_visualize_documents(topic_model,docs_dl):
 
 
 if __name__=="__main__":
-    docsMaker(pdf_folder)
-    #topic_model,docs_dl,representative_docs=model_train()
+    #docsMaker(pdf_folder)
+    topic_model,docs_dl,representative_docs=model_train()
     #csv_gen(topic_model)
     #representative_docs_gen(topic_model,representative_docs)
-    
+
     #gen_heatmap(topic_model)
     #gen_visualize_documents(topic_model,docs_dl)
