@@ -112,9 +112,11 @@ def model_train():
     custom_stopwords = set(stopwords.words("english"))
     custom_stopwords.update(["al", "et", "et al"])
     custom_stopwords = list(custom_stopwords)
+    
+    print("DIRNAME")
+    print(os.path.dirname(__file__))
 
-
-    if not os.path.exists("DF_bertopic.txt"):
+    if not os.path.exists(os.path.join(os.path.dirname(__file__), "DF_bertopic.txt")):
         with open("docs_dl.txt", "rb") as fp:  # Unpickling
             docs_dl = pickle.load(fp)
         vectorizer_model = CountVectorizer(stop_words=custom_stopwords)
@@ -132,16 +134,16 @@ def model_train():
             top_indices = doc_probs.argsort()[-nr_docs:][::-1]
             representative_docs.append(topic_docs[top_indices])
 
-        with open("Representative_topic.txt", "wb") as fp:
+        with open(os.path.join(os.path.dirname(__file__), "Representative_topic.txt"), "wb") as fp:
             pickle.dump(representative_docs, fp)
 
-        with open("DF_bertopic.txt", "wb") as fp:
+        with open(os.path.join(os.path.dirname(__file__), "DF_bertopic.txt"), "wb") as fp:
             pickle.dump(topic_model, fp)
 
     else:
-        with open("DF_bertopic.txt", "rb") as fp:
+        with open(os.path.join(os.path.dirname(__file__), "DF_bertopic.txt"), "rb") as fp:
             topic_model = pickle.load(fp)
-        with open("Representative_topic.txt", "rb") as fp:
+        with open(os.path.join(os.path.dirname(__file__), "Representative_topic.txt"), "rb") as fp:
             representative_docs = pickle.load(fp)
 
     return topic_model, representative_docs
