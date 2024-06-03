@@ -13,7 +13,7 @@ from nltk.corpus import stopwords
 import numpy as np
 
 # Télécharger les stopwords de nltk si ce n'est pas déjà fait
-nltk.download('stopwords')
+#nltk.download('stopwords')
 
 pdf_folder = '/media/gad/A4F3-B9AE/PDF2'
 
@@ -28,10 +28,7 @@ def docsMaker(pdf_folder):
     count=0
     for pdf in pdfs:
         print(f"  Fichier {count}: {pdf}")
-        reader = PdfReader(pdf_folder+'/'+pdf)
-        all_text = ""
-        for page in reader.pages:
-            all_text += page.extract_text() + " "
+        all_text=extract_txt(pdf_folder+'/'+pdf)
         docs.append(all_text)
         count +=1
 
@@ -141,19 +138,61 @@ def gen_heatmap(topic_model):
     fig.write_image("/home/gad/Documents/cassiope/cassiope/util/topicModeling/visualize_topic/heat_map.png")
 
 def gen_visualize_documents(topic_model,docs_dl):
-    fig=topic_model.visualize_documents(docs_dl,
-                                        topics=list(range(30)),
-                                        height=600)
-    #pio.write_image(fig, "visualize_topic/output.png", engine="kaleido")
+    #fig=topic_model.visualize_documents(docs_dl,
+                                        #sample=0.01,
+                                        #)
+    fig=topic_model.visualize_topics()
+    html_str=pio.to_html(fig)
+    print(html_str)
     fig.show()
+
+def get_html_topic():
+    fig=topic_model.visualize_topics()
+    html_str=pio.to_html(fig)
+    return html_str
+
+def extract_txt(pdf):
+    reader = PdfReader(pdf)
+    all_text = ""
+    for page in reader.pages:
+        all_text += page.extract_text() + " "
+    
+    return all_text
+
+def get_doc_topic(file_path):
+    model,docs_dl,representative_docs = model_train()
+    doc=extract_txt(file_path)
+
+    # Préparer le document sous forme de liste de chaînes de caractères
+    new_document = [doc]
+    
+    topic_list = pd.read_csv("BERTopic_modified.csv")
+
+    topics, _ = model.transform(new_document)
+    topic_distr, _ =model.approximate_distribution(new_document)
+    topic_probs={}
+    
+    for i,topic in enumerate(topic_list["Name"]):
+        topic_probs[topic]=topic_distr[0][i-1]
+
+    topic_probs_sorted={topic: prob for topic, prob in sorted(topic_probs.items(), key=lambda item: item[1],reverse=True)}
+    
+    for i,topic in enumerate(topic_probs_sorted) :
+        if i == 3 :
+            break
+        print(f"{topic} avec la prob : {topic_probs_sorted[topic]}")
+
+
 
 
 
 if __name__=="__main__":
     #docsMaker(pdf_folder)
     topic_model,docs_dl,representative_docs=model_train()
-    csv_gen(topic_model)
-    representative_docs_gen(topic_model,representative_docs)
+    #csv_gen(topic_model)
+    #representative_docs_gen(topic_model,representative_docs)
     
     #gen_heatmap(topic_model)
-    #gen_visualize_documents(topic_model,docs_dl)
+    gen_visualize_documents(topic_model,docs_dl)
+
+    #get_doc_topic('/home/gad/Documents/PDF/3D Infomax improves GNNs for Molecular Property Prediction.pdf')
