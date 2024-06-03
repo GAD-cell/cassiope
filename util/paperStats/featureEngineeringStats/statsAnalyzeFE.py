@@ -36,10 +36,13 @@ def create_features(data):
     data['figures_tables_per_page'] = (data['figures'] + data['tables']) / data['pages']
     data['equations_per_page'] = data['equations'] / data['pages']
     data['subsections_per_page'] = data['subsections'] / data['pages']
-    data['title_length'] = data['title'].str.len()
+    data['title_length'] = data['title_length']
+    data['abstract_length'] = data['abstract_length']
+    data['acronym_presence'] = data['acronym_presence']
+
     # Select the new features and the target variable
     features = data[['referencecount_per_page', 'figures_tables_per_page',
-                     'equations_per_page', 'subsections_per_page','title_length']]
+                     'equations_per_page', 'subsections_per_page','title_length', 'abstract_length', 'acronym_presence']]
     return features
 def make_df(X,y):
     df1 = pd.DataFrame(data=X)
@@ -91,7 +94,7 @@ def correlation_matrix(df):
 
 
 if __name__=="__main__":
-    data,citationcount = read_csv("../STATS.csv")
+    data,citationcount = read_csv("../STATS_2018-2022.csv")
     #plot('content_references','citationcount',data)
     features = create_features(data)
     df = make_df(features,citationcount)
