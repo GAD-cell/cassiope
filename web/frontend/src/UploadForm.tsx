@@ -11,7 +11,8 @@ const UploadForm = (props: any) => {
 
     const EXAMPLES = [
         "attention_is_all_you_need",
-        "ADOM_Accelerated_Decentralized_Optimization_Method_for_Time_Varying_Networks"
+        "ADOM_Accelerated_Decentralized_Optimization_Method_for_Time_Varying_Networks",
+        "learning_transferable_visual_models_from_natural_language_supervision"
     ]
 
     const toTitleCase = (str: string) => {

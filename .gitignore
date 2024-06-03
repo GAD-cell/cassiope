@@ -1,4 +1,4 @@
 .DS_STORE
-examples/
+util/paperStats/examples/
 __pycache__/
 *.pyc
