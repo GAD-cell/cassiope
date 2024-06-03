@@ -96,9 +96,9 @@ def model_train():
     custom_stopwords.update(["al","et","et al"])
     custom_stopwords = list(custom_stopwords)
 
-    with open("docs_dl.txt", "rb") as fp:   # Unpickling
-        docs_dl = pickle.load(fp)
     if not os.path.exists("DF_bertopic.txt"):
+        with open("docs_dl.txt", "rb") as fp:   # Unpickling
+            docs_dl = pickle.load(fp)
         vectorizer_model = CountVectorizer( stop_words=custom_stopwords)
         topic_model = BERTopic(vectorizer_model=vectorizer_model)
         topics, probs = topic_model.fit_transform(docs_dl)
