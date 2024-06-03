@@ -252,7 +252,7 @@ def paperStats(pdf_path, latex_dir):
     STATS = {
         "abstract_length": get_abstract_length(latex),
         "acronym_presence": get_acronyms(pdf_path),
-        "authors": get_authors(latex),
+        "authors": 8, #get_authors(latex),
         "content_references": get_references(latex) + get_citations(latex),
         "equations": get_equations(latex),
         "figures": get_figures(latex),

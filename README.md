@@ -19,32 +19,37 @@ Les étapes du projet seront les suivantes:
 - Implémentation du système de vérification. Etant donné un article, nous voulons pouvoir écrire la liste de améliorations et corrections possible.
 - Création d’une interface. Un utilisateur devra pouvoir interagir avec notre outil à travers une interface Web.
 
-## Installation
+## Composantes du projet
 
-### Prérequis
+### 1. Téléchargement des données : `util/downloadPapers`
 
-- Python 3.8
-- pip
+Le script `downloadPapers.py` permet de télécharger des articles scientifiques depuis le site [arXiv](https://arxiv.org/). Il prend en entrée une liste de mots-clés et télécharge les articles correspondants.
 
-### Installation des dépendances
+Dans un premier temps, il génère une base de données [SemanticScholar](https://www.semanticscholar.org/) d'après les critères de recherche. Ensuite, il télécharge les articles correspondants.
 
-```bash
-pip install -r requirements.txt
-```
+On récupère donc :
 
-## PaperStats
+- Le papier au format PDF
+- Les sources LaTeX, au format .tar.gz
 
-Le script paperStats.py permet de récupérer des informations sur un fichier PDF.
+### 2. Extraction des métriques : `util/paperStats`
 
-### Usage
+Le module `paperStats.py` prend un papier (PDF+LaTeX) en entrée et en extrait des métriques. Ces métriques sont des informations sur le papier, comme le nombre de mots, le nombre de figures, le nombre de références, ...
 
-```python
-# Ligne de commande
-python paperStats.py <path_to_pdf>
+Le tout est sauvegardé dans un tableur `STATS.csv`, à jour sur ce dépot.
 
-# En tant que module
-from util.paperStats import paperStats
-paperStats(<path_to_pdf>, <path_to_latex_project>)
-```
+### 3. Analyse de données : `util/paperStats/featureStats`
 
-La première fois que le script est exécuté, LanguageTool se télécharge. Cela permet de compter le nombre de fautes d'orthographe dans le document.
+Le script `featureStats.py` prend en entrée un fichier `STATS.csv` et en extrait des statistiques. Ces statistiques sont des informations sur les métriques extraites, comme la moyenne, l'écart-type.
+Il apparaît également la corrélation entre les différentes métriques.
+
+### 4. Analyse des sujets : `util/topicModeling`
+
+Le module `getTopic.py` permet de faire du topic modeling sur les articles, avec [BERTopic](https://maartengr.github.io/BERTopic/). Il analyse la totalité des PDFs et en extrait des sujets.
+
+### 5. Interface utilisateur : `web`
+
+Le dossier `web` contient l'interface utilisateur. Elle permet de charger un papier, de le soumettre à l'analyse et de récupérer les résultats.
+Pour la lancer : `./start.sh`
+
+![img](/.github/webapp.png)
