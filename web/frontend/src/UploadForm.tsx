@@ -11,6 +11,7 @@ const UploadForm = (props: any) => {
 
     const EXAMPLES = [
         "attention_is_all_you_need",
+        "ADOM_Accelerated_Decentralized_Optimization_Method_for_Time_Varying_Networks"
     ]
 
     const toTitleCase = (str: string) => {

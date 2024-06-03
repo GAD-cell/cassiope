@@ -11,6 +11,7 @@ const Main = () => {
   const [latexZip, setLatexZip] = useState<File>()
   const [paperStats, setPaperStats] = useState<any>()
   const [loading, setLoading] = useState<boolean>(false)
+  const [rawHtmlGraph, setRawHtmlGraph] = useState<string>("");
 
   useEffect(() => {
     fetch('/time').then(res => res.json()).then(data => {
@@ -24,6 +25,7 @@ const Main = () => {
     const formData = new FormData()
     formData.append('pdf', pdf!)
     formData.append('latex_zip', latexZip!)
+
     fetch('/paper-stats', {
       method: 'POST',
       body: formData
@@ -32,6 +34,12 @@ const Main = () => {
     }).finally(() => {
       setLoading(false)
     })
+
+    fetch('/topics-graph', {
+      method: 'GET'
+    }).then(res => res.json().then(data => {
+      setRawHtmlGraph(data.raw_html)
+    }))
   }
 
   const Status = () => {

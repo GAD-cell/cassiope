@@ -116,10 +116,11 @@ def gen_regressor_model():
     data,citationcount = read_csv('/home/gad/Documents/cassiope/cassiope/util/paperStats/STATS.csv')
     data['citationcount']=citationcount
 
+    data_sorted = data.sort_values(by='citationcount', ascending=False)
 
-    #stat sur les 10% meilleurs papiers en terme de citation
-
-    statistiques = data.describe().transpose()
+    n = floor(len(data['citationcount'])*0.1)
+    data_sorted_top_n = data_sorted.head(n)
+    statistiques = data_sorted_top_n.describe().transpose()  
     print(statistiques)
 
 
@@ -244,8 +245,8 @@ if __name__=="__main__":
     #linear_regression(data,citationcount)
     #correlation_matrix(df)
     
-    #gen_citationcount_per_topic()
+    gen_citationcount_per_topic()
 
     #gen_regressor_model()
     #citationcount_predict()
-    random_forest()
+    #random_forest()
