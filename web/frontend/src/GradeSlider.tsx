@@ -8,9 +8,9 @@ const GradeSlider = (props:any) => {
   const BOUNDS : {[key: string]: number[]} = {
     "abstract_length":    [0, 400, 150, 250],
     "acronym_presence":   [],
-    "authors":            [1, 20, 2, 6],
-    "content_references": [0, 500, 35, 95],
-    "equations":          [0, 400, 25, 105],
+    "authors":            [1, 20, 3, 10],
+    "content_references": [0, 500, 35, 175],
+    "equations":          [0, 400, 10, 105],
     "figures":            [0, 150, 5, 35],
     "font":               [],
     "pages":              [3, 60, 15, 25],
