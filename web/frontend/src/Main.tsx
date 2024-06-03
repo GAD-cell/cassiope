@@ -28,7 +28,6 @@ const Main = () => {
       method: 'POST',
       body: formData
     }).then(res => res.json()).then(data => {
-      console.log(data)
       setPaperStats(data)
     }).finally(() => {
       setLoading(false)

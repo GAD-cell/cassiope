@@ -54,8 +54,6 @@ const UploadForm = (props: any) => {
         )
     }
 
-    console.log(pdf, latexZip, canUpload)
-
     return (
         <form method="post" encType="multipart/form-data" className='mx-auto max-w-lg'>
 
