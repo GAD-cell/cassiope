@@ -158,8 +158,9 @@ def gen_visualize_documents(topic_model, docs_dl):
 
 if __name__ == "__main__":
     # docsMaker(pdf_folder)
-    topic_model, docs_dl, representative_docs = model_train()
+    #topic_model, docs_dl, representative_docs = model_train()
     # csv_gen(topic_model)
+    get_pdf_list_dir()
     # representative_docs_gen(topic_model,representative_docs)
 
     # gen_heatmap(topic_model)
