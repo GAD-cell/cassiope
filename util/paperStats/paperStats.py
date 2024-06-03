@@ -200,7 +200,6 @@ def get_abstract_length(latex):
 def get_acronyms(pdf_path):
     title = os.path.basename(pdf_path).split("/")[-1].split(".")[0]
     title = title.replace("_", " ")
-    print(title)
     return re.search(r'\b[A-Z]{2,}\b', title) is not None
 
 def get_title_length(pdf_path):
