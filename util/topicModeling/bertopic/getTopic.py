@@ -15,7 +15,7 @@ import numpy as np
 # Télécharger les stopwords de nltk si ce n'est pas déjà fait
 nltk.download('stopwords')
 
-pdf_folder = '/media/gad/A4F3-B9AE/PDF2'
+pdf_folder = "C:/Users/Axel/cassiope/util/downloadPapers/PDF"
 
 def docsMaker(pdf_folder):
 
