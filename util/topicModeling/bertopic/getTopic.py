@@ -42,8 +42,13 @@ def docsMaker(pdf_folder):
 
 def hash_maker():
     hashmap = {}
-    pdfs = os.listdir(pdf_folder)
+    with open("pdf_list_dir.txt", "rb") as fp:  # Unpickling
+        pdfs= pickle.load(fp)
+
+    #si pas le .txt
+    #pdfs = os.listdir(pdf_folder)
     pdfs = remove_pdf_suffix(pdfs)
+    
     with open("docs_dl.txt", "rb") as fp:  # Unpickling
         docs_dl = pickle.load(fp)
     fichier = 0
@@ -102,9 +107,10 @@ def model_train():
     custom_stopwords.update(["al", "et", "et al"])
     custom_stopwords = list(custom_stopwords)
 
-    with open("docs_dl.txt", "rb") as fp:  # Unpickling
-        docs_dl = pickle.load(fp)
+
     if not os.path.exists("DF_bertopic.txt"):
+        with open("docs_dl.txt", "rb") as fp:  # Unpickling
+            docs_dl = pickle.load(fp)
         vectorizer_model = CountVectorizer(stop_words=custom_stopwords)
         topic_model = BERTopic(vectorizer_model=vectorizer_model)
         topics, probs = topic_model.fit_transform(docs_dl)
@@ -132,7 +138,7 @@ def model_train():
         with open("Representative_topic.txt", "rb") as fp:
             representative_docs = pickle.load(fp)
 
-    return topic_model, docs_dl, representative_docs
+    return topic_model, representative_docs
 
 
 def csv_gen(topic_model):
@@ -148,7 +154,10 @@ def gen_heatmap(topic_model):
     fig.write_image("/home/gad/Documents/cassiope/cassiope/util/topicModeling/visualize_topic/heat_map.png")
 
 
-def gen_visualize_documents(topic_model, docs_dl):
+def gen_visualize_documents(topic_model):
+
+    with open("docs_dl.txt", "rb") as fp:  # Unpickling
+        docs_dl = pickle.load(fp)
     fig = topic_model.visualize_documents(docs_dl,
                                           topics=list(range(30)),
                                           height=600)
@@ -158,9 +167,10 @@ def gen_visualize_documents(topic_model, docs_dl):
 
 if __name__ == "__main__":
     # docsMaker(pdf_folder)
-    topic_model, docs_dl, representative_docs = model_train()
-    # csv_gen(topic_model)
-    # representative_docs_gen(topic_model,representative_docs)
+    topic_model, representative_docs = model_train()
+    #csv_gen(topic_model)
+    #representative_docs_gen(topic_model,representative_docs)
 
     # gen_heatmap(topic_model)
-    # gen_visualize_documents(topic_model,docs_dl)
+    #gen_visualize_documents(topic_model,docs_dl)
+
