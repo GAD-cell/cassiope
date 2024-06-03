@@ -24,8 +24,8 @@ def get_paper_stats():
             # PDF : single file
             # LaTeX : directory unzipped from latex_zip
 
-            pdf_path = f"{tempdir}/paper.pdf"
-            latex_path = f"{tempdir}/latex"
+            pdf_path = f"{tempdir}/{pdf.filename}"
+            latex_path = f"{tempdir}/{latex_zip.filename.split('.')[0]}"
 
             pdf.save(pdf_path)
 

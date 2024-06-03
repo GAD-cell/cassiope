@@ -26,8 +26,6 @@ from collections import Counter
 import argparse
 import fitz
 import json
-# import language_tool_python
-# import pypandoc
 import os
 import re
 
@@ -48,44 +46,6 @@ parser.add_argument("pdf", help="Path to the pdf file.")
 parser.add_argument("latex", help="Path to the latex project directory.")
 
 
-def get_main_latex_file(latex_dir, local=False):
-    """
-    Find the location of the main tex file in a latex project directory
-
-    local: Get the filename starting from latex_dir (useful for pandoc)
-    """
-
-    main_tex = None
-
-    ## Check if main.tex exists
-    if os.path.isfile(os.path.join(latex_dir, "main.tex")):
-        main_tex = os.path.join(latex_dir, "main.tex")
-        if local:
-            return "main.tex"
-        else:
-            return main_tex
-
-    ## If not, search for the main tex file
-    if not main_tex:
-        for root, dirs, files in os.walk(latex_dir):
-            for file in files:
-                if file.endswith(".tex"):
-                    with open(os.path.join(root, file), "r") as f:
-                        if "documentclass" in f.read():
-                            if local:
-                                return file
-                            main_tex = os.path.join(root, file)
-                            break
-            if main_tex:
-                # print(f"Main tex file found: {main_tex}")
-                break
-
-    if not main_tex:
-        raise ValueError("No main tex file found.")
-
-    return main_tex
-
-
 # Process the latex project and return one big latex text file
 def parse_latex(latex_dir):
     """
@@ -96,23 +56,16 @@ def parse_latex(latex_dir):
     - Return the project as one big latex string.
     """
 
-    # Find the main text file
-    main_tex = get_main_latex_file(latex_dir)
-
     # Find all the tex files that are included in the main file
     included_tex_files = []
-    with open(main_tex, "r") as f:
-        for line in f:
-            if "input" in line or "include" in line:
-                if ".tex" in line:
-                    included_tex_files.append(line.split("{")[1].split("}")[0])
 
-    # Read the main tex file and all the included tex files
-    with open(main_tex, "r") as f:
-        try:
-            latex = f.read()
-        except:
-            latex = ""
+    # Add ALL .tex files in the directory (recursively)
+    for root, dirs, files in os.walk(latex_dir):
+        for file in files:
+            if file.endswith(".tex"):
+                included_tex_files.append(file)
+
+    latex = ""
 
     for tex_file in included_tex_files:
         try:
@@ -244,6 +197,24 @@ def get_abstract_length(latex):
     else:
         return 0
 
+def get_acronyms(pdf_path):
+    title = os.path.basename(pdf_path).split("/")[-1].split(".")[0]
+    title = title.replace("_", " ")
+    print(title)
+    return re.search(r'\b[A-Z]{2,}\b', title) is not None
+
+def get_title_length(pdf_path):
+    return len(os.path.basename(pdf_path).split("/")[-1].split(".")[0])
+
+def get_authors(latex):
+    author_section = re.search(r'\\author\{(.+?)\}', latex, re.DOTALL)
+    if not author_section:
+        return 0
+    authors = author_section.group(1)
+    authors = re.sub(r'\\thanks\{.*?\}', '', authors)
+    return len(re.findall(r'\\and', authors)) + 1
+
+
 """ def get_grammar_errors(latex_dir):
 
     # Ignore errors on uppercase or titlecase words
@@ -280,6 +251,9 @@ def paperStats(pdf_path, latex_dir):
     # topic1, topic2, topic3 = getTopics(pdf_path)
 
     STATS = {
+        "abstract_length": get_abstract_length(latex),
+        "acronym_presence": get_acronyms(pdf_path),
+        "authors": get_authors(latex),
         "content_references": get_references(latex) + get_citations(latex),
         "equations": get_equations(latex),
         "figures": get_figures(latex),
@@ -290,12 +264,8 @@ def paperStats(pdf_path, latex_dir):
         "subsections": get_subsections(latex),
         "subsubsections": get_subsubsections(latex),
         "tables": get_tables(latex),
+        "title_length": get_title_length(pdf_path),
         "words": get_number_words(pdf),
-        "abstract_length": get_abstract_length(latex),
-        #"topic1": topic1,
-        # "topic2": topic2,
-        # "topic3": topic3,
-        # "grammar_errors": get_grammar_errors(latex_dir),
     }
 
     return STATS
