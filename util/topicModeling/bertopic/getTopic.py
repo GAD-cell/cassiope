@@ -36,6 +36,11 @@ def docsMaker(pdf_folder):
         pickle.dump(docs, fp)
     return docs
 
+def get_pdf_list_dir():
+    pdfs=os.listdir(pdf_folder)
+    with open("pdf_list_dir.txt", "wb") as fp:   #Pickling
+        pickle.dump(pdfs, fp)
+
 def hash_maker():
     hashmap={}
     pdfs=os.listdir(pdf_folder)
@@ -146,7 +151,7 @@ def gen_visualize_documents(topic_model,docs_dl):
     print(html_str)
     fig.show()
 
-def get_html_topic():
+def get_html_topic(topic_model):
     fig=topic_model.visualize_topics()
     html_str=pio.to_html(fig)
     return html_str
@@ -189,8 +194,8 @@ def get_doc_topic(file_path):
 if __name__=="__main__":
     #docsMaker(pdf_folder)
     topic_model,docs_dl,representative_docs=model_train()
-    #csv_gen(topic_model)
-    #representative_docs_gen(topic_model,representative_docs)
+    csv_gen(topic_model)
+    representative_docs_gen(topic_model,representative_docs)
     
     #gen_heatmap(topic_model)
     gen_visualize_documents(topic_model,docs_dl)
