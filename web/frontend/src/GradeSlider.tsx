@@ -7,18 +7,20 @@ const GradeSlider = (props:any) => {
   // "property" : [min, max, min_good, max_good]
   const BOUNDS : {[key: string]: number[]} = {
     "abstract_length":    [0, 400, 150, 250],
-    
+    "acronym_presence":   [],
+    "authors":            [1, 20, 2, 6],
     "content_references": [0, 500, 35, 95],
     "equations":          [0, 400, 25, 105],
     "figures":            [0, 150, 5, 35],
     "font":               [],
-    "pages":              [3, 143, 15, 25],
+    "pages":              [3, 60, 15, 25],
     "paragraphs":         [0, 100, 5, 15],
     "sections":           [0, 20, 5, 9],
     "subsections":        [0, 60, 4, 12],
     "subsubsections":     [0, 50, 20, 30],
     "tables":             [0, 80, 3, 10],
-    "words":              [0, 30000, 9000, 13000]
+    "title_length":       [0, 200, 20, 50],
+    "words":              [0, 30000, 6000, 13000]
   }
 
   const property = props.property
@@ -30,7 +32,12 @@ const GradeSlider = (props:any) => {
   const [min, max, min_good, max_good] = BOUNDS[property] ?? [0, 1000, 250, 750]
 
   // Generate a table of good values : one by one, from min_good to max_good
-  const good_marks = () => Array.from({ length: max_good - min_good + 1 }, (_, i) => min_good + i)
+  // Marks are 16px wide, so we only need so many of them.
+  const good_marks = () => {
+    const numMarks = Math.max(Math.floor((max_good - min_good) / 16) + 1, 8);
+    const step = (max_good - min_good) / (numMarks - 1);
+    return Array.from({ length: numMarks }, (_, i) => min_good + i * step);
+  }
 
   /*
   This component displays the 'value' of a property in a slider. The slider has a range from 0 to 100.

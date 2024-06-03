@@ -4,7 +4,7 @@ from PyPDF2 import PdfReader
 import pickle
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
-#os.environ["TOKENIZERS_PARALLELISM"] = "false"
+# os.environ["TOKENIZERS_PARALLELISM"] = "false"
 import plotly.io as pio
 import csv
 import sys
@@ -13,7 +13,7 @@ from nltk.corpus import stopwords
 import numpy as np
 
 # Télécharger les stopwords de nltk si ce n'est pas déjà fait
-#nltk.download('stopwords')
+# nltk.download('stopwords')
 
 pdf_folder = "C:/Users/Axel/cassiope/util/downloadPapers/PDF"
 
@@ -56,7 +56,7 @@ def hash_maker():
 
 def remove_pdf_suffix(pdf_list):
     return [filename[:-4] if filename.endswith(".pdf") else filename for filename in pdf_list]
-     
+
 def get_representative_docs(representative_docs,hashmap):
     docs=[]
     for doc in representative_docs:
@@ -137,7 +137,6 @@ def csv_gen(topic_model):
     return representative_docs
 
 
-
 def gen_heatmap(topic_model):
     fig=topic_model.visualize_heatmap(n_clusters=20)
     fig.write_image("/home/gad/Documents/cassiope/cassiope/util/topicModeling/visualize_topic/heat_map.png")
@@ -151,7 +150,8 @@ def gen_visualize_documents(topic_model,docs_dl):
     print(html_str)
     fig.show()
 
-def get_html_topic(topic_model):
+def get_html_topic():
+    topic_model, _, _ = model_train()
     fig=topic_model.visualize_topics()
     html_str=pio.to_html(fig)
     return html_str
@@ -186,9 +186,6 @@ def get_doc_topic(file_path):
         if i == 3 :
             break
         print(f"{topic} avec la prob : {topic_probs_sorted[topic]}")
-
-
-
 
 
 if __name__=="__main__":
