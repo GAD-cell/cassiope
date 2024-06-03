@@ -53,6 +53,10 @@ def hash_maker():
 
     return hashmap
 
+def get_pdf_list_dir():
+    pdfs=os.listdir(pdf_folder)
+    with open("pdf_list_dir.txt", "wb") as fp:   #Pickling
+        pickle.dump(pdfs, fp)
 
 def remove_pdf_suffix(pdf_list):
     return [filename[:-4] if filename.endswith(".pdf") else filename for filename in pdf_list]
