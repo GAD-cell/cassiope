@@ -1,5 +1,5 @@
 from .paperStats import paperStats
-from .topicModeling.bertopic.getTopic import get_html_topic
+# from .topicModeling.bertopic.getTopic import get_html_topic
 from flask import Flask, request
 import os
 import tempfile
@@ -13,12 +13,12 @@ app = Flask(__name__)
 def get_current_time():
     return {"time": time.time()}
 
-@app.route("/topics-graph")
+""" @app.route("/topics-graph")
 def get_topics_graph():
     try:
         return {'raw_html': get_html_topic()}
     except Exception as e:
-        raise e
+        raise e """
 
 @app.route("/paper-stats", methods=["POST"])
 def get_paper_stats():
