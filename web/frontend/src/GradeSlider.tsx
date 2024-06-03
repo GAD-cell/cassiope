@@ -29,7 +29,7 @@ const GradeSlider = (props:any) => {
   const [min, max, min_good, max_good] = BOUNDS[property]
 
   // Generate a table of good values : one by one, from min_good to max_good
-  const good_marks = Array.from({ length: max_good - min_good + 1 }, (_, i) => min_good + i)
+  const good_marks = () => Array.from({ length: max_good - min_good + 1 }, (_, i) => min_good + i)
 
   /*
   This component displays the 'value' of a property in a slider. The slider has a range from 0 to 100.
@@ -48,7 +48,7 @@ const GradeSlider = (props:any) => {
         defaultValue={value}
         min={min}
         max={max}
-        marks={good_marks}
+        marks={good_marks()}
         markClassName={`h-2 mt-1 bg-green-300 w-3`}
         disabled
       />

@@ -49,9 +49,10 @@ const Main = () => {
       <p className='text-sm text-blue-500 mb-4'>Feed this tool your paper and learn how you can make it more likely to be published, based on experience.</p>
 
       <UploadForm pdf={pdf} setPdf={setPdf} setLatexZip={setLatexZip} latexZip={latexZip} handleSubmit={handleSubmit} />
+      
       {loading ? <p className='text-center mt-4'>Loading...</p> :
         <>
-          <h2 className='text-lg font-semibold mt-4'>{pdf?.name.replace(".pdf", "")}</h2>
+          <h2 className='text-lg font-semibold mt-4 capitalize'>{pdf?.name.replace(".pdf", "").replaceAll("_", " ")}</h2>
           <StatsDisplay {...paperStats} />
         </>}
       <Status />
