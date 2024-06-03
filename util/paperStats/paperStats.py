@@ -244,6 +244,25 @@ def get_abstract_length(latex):
     else:
         return 0
 
+def get_acronyms(latex):
+    title_match = re.search(r'\\title\{(.+?)\}', latex, re.DOTALL)
+    title = title_match.group(1).strip() if title_match else ""
+    return 1 if re.search(r'\b[A-Z]{2,}\b', title) else 0
+
+def get_title_length(latex):
+    title_match = re.search(r'\\title\{(.+?)\}', latex, re.DOTALL)
+    title = title_match.group(1).strip() if title_match else ""
+    return len(title)
+
+def get_authors(latex):
+    author_section = re.search(r'\\author\{(.+?)\}', latex, re.DOTALL)
+    if not author_section:
+        return 0
+    authors = author_section.group(1)
+    authors = re.sub(r'\\thanks\{.*?\}', '', authors)
+    return len(re.findall(r'\\and', authors)) + 1
+
+
 """ def get_grammar_errors(latex_dir):
 
     # Ignore errors on uppercase or titlecase words
@@ -292,6 +311,8 @@ def paperStats(pdf_path, latex_dir):
         "tables": get_tables(latex),
         "words": get_number_words(pdf),
         "abstract_length": get_abstract_length(latex),
+        "acronym_presence": get_acronyms(latex),
+        "authors": get_authors(latex),
         #"topic1": topic1,
         # "topic2": topic2,
         # "topic3": topic3,
