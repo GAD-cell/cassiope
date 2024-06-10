@@ -93,8 +93,8 @@ def correlation_matrix(df):
 
 #calcul du nomnbre de citations par topic pour évaluer leurs popularités
 def gen_citationcount_per_topic():
-    bertopic_df=pd.read_csv('/home/gad/Documents/cassiope/cassiope/util/topicModeling/bertopic/BERTopic_modified.csv')
-    stat_df = pd.read_csv('/home/gad/Documents/cassiope/cassiope/util/paperStats/STATS.csv')
+    bertopic_df=pd.read_csv('C:/Users/Axel/cassiope/util/topicModeling/bertopic/BERTopic_modified.csv')
+    stat_df = pd.read_csv('C:/Users/Axel/cassiope/util/paperStats/STATS.csv')
     citationcount_per_topic = []
     bertopic_df["Representative_Docs"]=bertopic_df["Representative_Docs"].apply(ast.literal_eval)
     for docs in bertopic_df["Representative_Docs"]:
@@ -106,14 +106,14 @@ def gen_citationcount_per_topic():
                     count += int(row["citationcount"].values[0])
         citationcount_per_topic.append(count)
     bertopic_df["citationcount"]=citationcount_per_topic
-    bertopic_df.to_csv('/home/gad/Documents/cassiope/cassiope/util/paperStats/STATS_topic.csv', index=False)
+    bertopic_df.to_csv('C:/Users/Axel/cassiope/util/paperStats/STATS_topic.csv', index=False)
     return citationcount_per_topic
 
 #calcul des modèles régressifs
 def gen_regressor_model():
 
 
-    data,citationcount = read_csv('/home/gad/Documents/cassiope/cassiope/util/paperStats/STATS.csv')
+    data,citationcount = read_csv('C:/Users/Axel/cassiope/util/paperStats/STATS.csv')
     data['citationcount']=citationcount
 
     data_sorted = data.sort_values(by='citationcount', ascending=False)
@@ -192,7 +192,7 @@ def gen_regressor_model():
 def citationcount_predict():
     regression_results = gen_regressor_model()
 
-    new_data = pd.read_csv('/home/gad/Documents/cassiope/cassiope/util/paperStats/STATS_1.csv')
+    new_data = pd.read_csv('C:/Users/Axel/cassiope/util/paperStats/STATS_1.csv')
     intermediate_predictions = pd.DataFrame()
 
     for feature, result in regression_results.items():
@@ -214,7 +214,7 @@ def citationcount_predict():
 
 #prédiction par foret aléatoire
 def random_forest():
-    data,citationcount = read_csv('/home/gad/Documents/cassiope/cassiope/util/paperStats/STATS.csv')
+    data,citationcount = read_csv('C:/Users/Axel/cassiope/util/paperStats/STATS.csv')
     data['citationcount']=citationcount
 
     X = data.drop(columns=['citationcount']) 
