@@ -24,7 +24,7 @@ def docsMaker(pdf_folder):
     docs = []
     if os.path.exists("docs_dl.txt"):
         with open("docs_dl.txt", "rb") as fp:  # Unpickling
-            docs = pickle.load(fp)
+            docs = pd.read_pickle(fp)
     # Parcourt tous les fichiers et dossiers dans le dossier donné
     pdfs = os.listdir(pdf_folder)
     count = 0
@@ -48,14 +48,14 @@ def get_pdf_list_dir():
 def hash_maker():
     hashmap = {}
     with open("pdf_list_dir.txt", "rb") as fp:  # Unpickling
-        pdfs= pickle.load(fp)
+        pdfs= pd.read_pickle(fp)
 
     #si pas le .txt
     #pdfs = os.listdir(pdf_folder)
     pdfs = remove_pdf_suffix(pdfs)
     
     with open("docs_dl.txt", "rb") as fp:  # Unpickling
-        docs_dl = pickle.load(fp)
+        docs_dl = pd.read_pickle(fp)
     fichier = 0
     for doc in docs_dl:
         hashmap[doc] = pdfs[fichier]
@@ -118,7 +118,7 @@ def model_train():
 
     if not os.path.exists(os.path.join(os.path.dirname(__file__), "DF_bertopic.txt")):
         with open("docs_dl.txt", "rb") as fp:  # Unpickling
-            docs_dl = pickle.load(fp)
+            docs_dl = pd.read_pickle(fp)
         vectorizer_model = CountVectorizer(stop_words=custom_stopwords)
         topic_model = BERTopic(vectorizer_model=vectorizer_model)
         topics, probs = topic_model.fit_transform(docs_dl)
@@ -142,9 +142,9 @@ def model_train():
 
     else:
         with open(os.path.join(os.path.dirname(__file__), "DF_bertopic.txt"), "rb") as fp:
-            topic_model = pickle.load(fp)
+            topic_model = pd.read_pickle(fp)
         with open(os.path.join(os.path.dirname(__file__), "Representative_topic.txt"), "rb") as fp:
-            representative_docs = pickle.load(fp)
+            representative_docs = pd.read_pickle(fp)
 
     return topic_model, representative_docs
 
@@ -167,7 +167,7 @@ def gen_heatmap(topic_model):
 def gen_visualize_documents(topic_model):
 
     with open("docs_dl.txt", "rb") as fp:  # Unpickling
-        docs_dl = pickle.load(fp)
+        docs_dl = pd.read_pickle(fp)
     fig = topic_model.visualize_documents(docs_dl,
                                           topics=list(range(30)),
                                           height=600)
@@ -222,10 +222,10 @@ def get_doc_topic(file_path):
 
 if __name__ == "__main__":
     # docsMaker(pdf_folder)
-    topic_model, representative_docs = model_train()
+    #topic_model, representative_docs = model_train()
     #csv_gen(topic_model)
     #representative_docs_gen(topic_model,representative_docs)
-
+    get_doc_topic("C:/Users/Axel/cassiope/util/downloadPapers/PDF/3D Infomax improves GNNs for Molecular Property Prediction.pdf")
     # gen_heatmap(topic_model)
     #gen_visualize_documents(topic_model,docs_dl)
 

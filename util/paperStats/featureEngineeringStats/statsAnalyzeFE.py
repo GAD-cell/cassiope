@@ -12,6 +12,9 @@ import seaborn as sns
 def read_csv(fileName):
     data = pd.read_csv(fileName)
     total_rows = len(data)  # Compter le nombre total de lignes avant filtrage
+    del data['filename']
+    del data['title']
+    del data['authors']
     del data['arxiv_id']
     del data['corpusid']
     del data['venue']
@@ -36,14 +39,14 @@ def create_features(data):
     data['figures_tables_per_page'] = (data['figures'] + data['tables']) / data['pages']
     data['equations_per_page'] = data['equations'] / data['pages']
     data['subsections_per_page'] = data['subsections'] / data['pages']
-    data['title_length'] = data['title_length']
-    data['abstract_length'] = data['abstract_length']
-    data['acronym_presence'] = data['acronym_presence']
+    #data['title_length'] = data['title_length']
+    #data['abstract_length'] = data['abstract_length']
+    #data['acronym_presence'] = data['acronym_presence']
 
     # Select the new features and the target variable
-    features = data[['referencecount_per_page', 'figures_tables_per_page',
-                     'equations_per_page', 'subsections_per_page','title_length', 'abstract_length', 'acronym_presence']]
-    return features
+    #features = data[['referencecount_per_page', 'figures_tables_per_page',
+                    # 'equations_per_page', 'subsections_per_page','title_length', 'abstract_length', 'acronym_presence']]
+    return data
 def make_df(X,y):
     df1 = pd.DataFrame(data=X)
     df2=pd.DataFrame(data=y,columns=['citationcount'])
@@ -98,7 +101,7 @@ if __name__=="__main__":
     #plot('content_references','citationcount',data)
     features = create_features(data)
     df = make_df(features,citationcount)
-
+    df.to_csv("../STATS_2018-2022-new2.csv")
     #visualize_features(df)
     #randomForest(features,citationcount,df)
     #linear_regression(features,citationcount)

@@ -24,13 +24,7 @@ def read_csv(fileName):
     data = pd.read_csv(fileName)
     del data['filename']
     del data['title']
-    del data['arxiv_id']
-    del data['corpusid']
-    del data['venue']
-    del data['font']
-    del data["influentialcitationcount"]
-    del data['year']
-    del data['authors']
+    del data['authors']corré
     citationcount=data["citationcount"]
     del data["citationcount"]
     
@@ -113,7 +107,7 @@ def gen_citationcount_per_topic():
 def gen_regressor_model():
 
 
-    data,citationcount = read_csv('C:/Users/Axel/cassiope/util/paperStats/STATS.csv')
+    data,citationcount = read_csv('C:/Users/Axel/cassiope/util/paperStats/STATS_2018-2022-new.csv')
     data['citationcount']=citationcount
 
     data_sorted = data.sort_values(by='citationcount', ascending=False)
@@ -214,7 +208,7 @@ def citationcount_predict():
 
 #prédiction par foret aléatoire
 def random_forest():
-    data,citationcount = read_csv('C:/Users/Axel/cassiope/util/paperStats/STATS.csv')
+    data,citationcount = read_csv('C:/Users/Axel/cassiope/util/paperStats/STATS_2018-2022-new.csv')
     data['citationcount']=citationcount
 
     X = data.drop(columns=['citationcount']) 
@@ -245,8 +239,9 @@ if __name__=="__main__":
     #linear_regression(data,citationcount)
     #correlation_matrix(df)
     
-    gen_citationcount_per_topic()
+    #gen_citationcount_per_topic()
 
-    #gen_regressor_model()
+
+    gen_regressor_model()
     #citationcount_predict()
-    #random_forest()
+    random_forest()
