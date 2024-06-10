@@ -31,7 +31,7 @@ def getLinks():
     base_url = "https://api.semanticscholar.org/datasets/v1/release/"
 
     # This endpoint requires authentication via api key
-    api_key = "P3AM0tn0NA3kiXj8BflJH6PH2UbsuNlWajdptLym"
+    api_key = "null"
     headers = {"x-api-key": api_key}
 
     # Make the initial request to get the list of releases
