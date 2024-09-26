@@ -1,55 +1,43 @@
-# Méta-analyse de papiers de recherche
-
-Projet Cassiopée 2023-2024
-
+Project Cassiopée 2023-2024
 Axel Benadiba, Sinoué Gad, Paul Guilloux
 
-## Objectif
+## Objective
+When scientists want to present a result, they write a scientific paper. These papers are highly structured: they often follow the same format, must be well presented, free of errors, and of appropriate length, etc.
 
-Lorsque des scientifiques veulent présenter un résultat, ils écrivent un article scientifique. Ces articles sont très codifiés : ils suivent souvent la même structure, ils doivent être bien présentés, sans faute, avec la bonne longueur, ...
+Meeting these standards is important because the papers are evaluated by the community to determine if they should be presented at a conference, which is the ultimate goal. Beyond scientific criteria, aspects related to presentation can have a significant impact. It is always unfortunate to fail due to an issue that could have been easily corrected.
 
-Réussir à respecter ces standards est important car les articles sont évalués par la communauté pour savoir s’ils doivent être présentés dans une conférence, ce qui est le but ultime. Outre les critères scientifiques, les aspects liés à la présentation peuvent avoir un fort effet. Il est toujours dommage d’échouer à cause d’un problème qui pourrait être facilement rectifié.
+In this project, we propose building a tool capable of evaluating a scientific paper to correct the most obvious errors and suggest improvement ideas. The user interface will be web-based, but the server can be coded in any language.
 
-Dans ce projet, nous proposons de construire un outil capable d’évaluer un papier scientifique pour corriger les erreurs les plus évidentes et proposer des idées d’amélioration. L’interface utilisateur passera par une interface web, mais le serveur pourra être codé dans un langage quelconque.
+## The project steps are as follows:
 
-Les étapes du projet seront les suivantes:
+Converting papers from PDF format into a more structured format. Papers are often written in LaTeX, but only the PDF is shared. We need to be able to restructure the PDF.
+Data analysis on existing papers. We will consult a database of previously written papers to extract common rules found in the most popular articles. These rules will then be added to the final system.
+Implementation of the verification system. Given an article, we want to generate a list of possible improvements and corrections.
+Creation of an interface. A user should be able to interact with our tool via a web interface.
+Project Components
+### 1. Data Download: util/downloadPapers
+The downloadPapers.py script allows downloading scientific papers from the arXiv website. It takes a list of keywords as input and downloads the corresponding papers.
 
-- Transformation de papiers au format PDF en un format plus structuré. Les articles sont souvent écrits en LaTeX, mais seul le PDF est communiqué. Il faudra être capable de restructurer le PDF.
-- Analyse de données sur les papiers existants. Nous consulterons une base de données de papiers déjà écrits pour en extraire des règles communes aux articles les plus populaires. Ces règles seront ensuite ajoutées au système final.
-- Implémentation du système de vérification. Etant donné un article, nous voulons pouvoir écrire la liste de améliorations et corrections possible.
-- Création d’une interface. Un utilisateur devra pouvoir interagir avec notre outil à travers une interface Web.
+Initially, it generates a database using SemanticScholar based on the search criteria. Then, it downloads the corresponding papers.
 
-## Composantes du projet
+We retrieve the following:
 
-### 1. Téléchargement des données : `util/downloadPapers`
+The paper in PDF format
+The LaTeX sources in .tar.gz format
+### 2. Metric Extraction: util/paperStats
+The paperStats.py module takes a paper (PDF+LaTeX) as input and extracts metrics. These metrics are information about the paper, such as the number of words, figures, references, etc.
 
-Le script `downloadPapers.py` permet de télécharger des articles scientifiques depuis le site [arXiv](https://arxiv.org/). Il prend en entrée une liste de mots-clés et télécharge les articles correspondants.
+All this data is saved in a STATS.csv spreadsheet, which is kept up to date in this repository.
 
-Dans un premier temps, il génère une base de données [SemanticScholar](https://www.semanticscholar.org/) d'après les critères de recherche. Ensuite, il télécharge les articles correspondants.
+### 3. Data Analysis: util/paperStats/featureStats
+The featureStats.py script takes the STATS.csv file as input and extracts statistics. These statistics provide information on the extracted metrics, such as the mean, standard deviation, and correlations between different metrics.
 
-On récupère donc :
+### 4. Topic Analysis: util/topicModeling
+The getTopic.py module performs topic modeling on the articles using BERTopic. It analyzes all the PDFs and extracts topics from them.
 
-- Le papier au format PDF
-- Les sources LaTeX, au format .tar.gz
+### 5. User Interface: web
+The web folder contains the user interface. It allows users to upload a paper, submit it for analysis, and retrieve the results. To launch it: ./start.sh
 
-### 2. Extraction des métriques : `util/paperStats`
 
-Le module `paperStats.py` prend un papier (PDF+LaTeX) en entrée et en extrait des métriques. Ces métriques sont des informations sur le papier, comme le nombre de mots, le nombre de figures, le nombre de références, ...
-
-Le tout est sauvegardé dans un tableur `STATS.csv`, à jour sur ce dépot.
-
-### 3. Analyse de données : `util/paperStats/featureStats`
-
-Le script `featureStats.py` prend en entrée un fichier `STATS.csv` et en extrait des statistiques. Ces statistiques sont des informations sur les métriques extraites, comme la moyenne, l'écart-type.
-Il apparaît également la corrélation entre les différentes métriques.
-
-### 4. Analyse des sujets : `util/topicModeling`
-
-Le module `getTopic.py` permet de faire du topic modeling sur les articles, avec [BERTopic](https://maartengr.github.io/BERTopic/). Il analyse la totalité des PDFs et en extrait des sujets.
-
-### 5. Interface utilisateur : `web`
-
-Le dossier `web` contient l'interface utilisateur. Elle permet de charger un papier, de le soumettre à l'analyse et de récupérer les résultats.
-Pour la lancer : `./start.sh`
 
 ![img](/.github/webapp.png)
